@@ -1,15 +1,19 @@
-# Dev Compose Documentation
+# Dev Compose
 
-## Prereqs
+Use this to start the development MySQL database
 
-To run the project, make sure you have `Docker Desktop` installed.
+## Getting Started
 
-## Running the Dev Env
+## Requirements
+
+Make sure you have `Docker Desktop` installed and can run `docker compose`.
+
+## Running the Dev Database
 
 Run the following command in the dev-compose directory:
 `docker compose up -d`
 
-## Stopping the Dev Env
+## Stopping the Dev Database
 
 Run the following command in the dev-compose directory:
 `docker compose down`

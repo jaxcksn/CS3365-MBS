@@ -23,7 +23,7 @@ FROM node:18-alpine
 RUN npm install -g serve
 
 # Copy the build files from the previous stage
-COPY --from=build /app/build /app/build
+COPY --from=build /app/dist /app/dist
 
 # Expose port 3000 to the host
 EXPOSE 3000
@@ -31,4 +31,4 @@ EXPOSE 3000
 LABEL org.opencontainers.image.source=https://github.com/jaxcksn/CS3365-MBS
 
 # Command to serve the build files using 'serve'
-CMD ["serve", "-s", "/app/build", "-l", "3000"]
+CMD ["serve", "-s", "/app/dist", "-l", "3000"]

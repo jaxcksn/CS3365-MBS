@@ -1,0 +1,39 @@
+name: Build
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get changed files in the frontend folder
+        id: frontend-files-changed
+        uses: tj-actions/changed-files@v45
+        with:
+          files: frontend/**
+          files_ignore: frontend/README.md, frontend/publish.sh
+
+      - name: Set up Node.js
+        if: steps.frontend-files-changed.outputs.any_changed == 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        if: steps.frontend-files-changed.outputs.any_changed == 'true'
+        run: |
+          cd frontend
+          npm install
+
+      # Run the build command to check if it works (adjust the command if necessary)
+      - name: Build the frontend
+        if: steps.frontend-files-changed.outputs.any_changed == 'true'
+        run: |
+          cd frontend
+          npm run build
