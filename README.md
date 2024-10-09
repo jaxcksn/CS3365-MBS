@@ -14,7 +14,7 @@
 ![Build](https://flat.badgen.net/github/checks/jaxcksn/cs3365-mbs/main/build-frontend?label=Build)
 ![CD](https://flat.badgen.net/github/checks/jaxcksn/cs3365-mbs/main/build-and-deploy?label=CD)
 
-Monorepo for the CS3365 Group Project to create a movie booking system.
+> Monorepo for the CS3365 Group Project to create a movie booking system.
 
 </div>
 
