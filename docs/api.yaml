@@ -1,0 +1,829 @@
+openapi: 3.1.0
+x-stoplight:
+  id: sm3gwkiehsujn
+info:
+  title: MBS Backend
+  version: 0.0.1
+  summary: MBS API Contract
+  description: This defines all the endpoints and routes that should exist in the API. This is meant to be a rough guide and may change as needed.
+servers:
+  - url: "http://localhost:3030"
+    description: Local Dev
+  - url: "https://api.jaxcksn.dev"
+    description: Staging
+paths:
+  /user/login:
+    parameters: []
+    post:
+      summary: Login the User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - token
+                  - expires
+                  - refresh
+                  - refresh_expires
+                properties:
+                  token:
+                    type: string
+                    x-stoplight:
+                      id: t7ix0jd7dt312
+                    description: The access token
+                  expires:
+                    type: string
+                    x-stoplight:
+                      id: n2elput5hzms4
+                    format: date-time
+                    description: The expiration time of the access token
+                  refresh:
+                    type: string
+                    x-stoplight:
+                      id: 25y4p7lmvgls2
+                    description: The refresh token
+                  refresh_expires:
+                    type: string
+                    x-stoplight:
+                      id: duwavmqigyj4z
+                    format: date-time
+                    description: The time the refresh token expires
+        "400":
+          description: Bad Request
+      operationId: user-login
+      x-stoplight:
+        id: wjrx4x6sq75al
+      description: "Logs the user into the MBS, returning an access token and a refresh token."
+      security: []
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  x-stoplight:
+                    id: ndt4rymhqo4oh
+                  description: The username for the user
+                password:
+                  type: string
+                  x-stoplight:
+                    id: i8w4tb6o141gj
+                  description: The unhashed password for the user
+  /user/register:
+    post:
+      summary: Register a User
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - token
+                  - expires
+                  - refresh
+                  - refresh_expires
+                properties:
+                  token:
+                    type: string
+                    x-stoplight:
+                      id: jtie2a2r1qtvj
+                  expires:
+                    type: string
+                    x-stoplight:
+                      id: 9ys0ttedthbdi
+                  refresh:
+                    type: string
+                    x-stoplight:
+                      id: bh513kh8pak9z
+                  refresh_expires:
+                    type: string
+                    x-stoplight:
+                      id: 90zbj0djco7ys
+        "400":
+          description: "Bad Request: Shown if the request is bad."
+        "409":
+          description: "Conflict: Shown if an account with the same email address already exists."
+      operationId: user-register
+      x-stoplight:
+        id: 7fhqn3miqd4ev
+      description: Registers a user for the MBS
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_name
+                - email
+                - password
+                - phone_number
+                - address
+                - state
+                - zip
+              properties:
+                first_name:
+                  type: string
+                  x-stoplight:
+                    id: gudxlo1q96nne
+                email:
+                  type: string
+                  x-stoplight:
+                    id: chkx9bdx5yzj9
+                  format: email
+                password:
+                  type: string
+                  x-stoplight:
+                    id: oeavgp9e0vw6q
+                  format: password
+                phone_number:
+                  type: string
+                  x-stoplight:
+                    id: yw221wdt79rgo
+                address:
+                  type: string
+                  x-stoplight:
+                    id: qf7c0chictzpp
+                state:
+                  type: string
+                  x-stoplight:
+                    id: 6ixvvx295ld3q
+                zip:
+                  type: string
+                  x-stoplight:
+                    id: c03uj3vb9ni0f
+  /user/logout:
+    get:
+      summary: Logout the User
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      operationId: user-logout
+      x-stoplight:
+        id: pywhagqjgs999
+      description: Logs the user out of the MBS and expires all refresh tokens.
+      security:
+        - BEARER: []
+  /user/bookings:
+    get:
+      summary: Fetch the User's Bookings
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  x-stoplight:
+                    id: ytuy4hhqwiq6j
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      x-stoplight:
+                        id: cut5z4itoo9a3
+                    date:
+                      type: string
+                      x-stoplight:
+                        id: 98td39bm75852
+                    time:
+                      type: string
+                      x-stoplight:
+                        id: kaxikg5uceg5y
+                    seats:
+                      type: number
+                      x-stoplight:
+                        id: 9l0jtd1bzblv4
+                    movie:
+                      type: object
+                      x-stoplight:
+                        id: 0b4bp1l5jcsco
+                      properties:
+                        title:
+                          type: string
+                          x-stoplight:
+                            id: yh16e2noskzi6
+                        poster_url:
+                          type: string
+                          x-stoplight:
+                            id: wh4sxfduyhsnt
+                        "":
+                          type: string
+                          x-stoplight:
+                            id: 857j6oq7jx4g2
+                    theater:
+                      type: string
+                      x-stoplight:
+                        id: auh0qzop6cuoe
+                    cost:
+                      type: number
+                      x-stoplight:
+                        id: xklbgdy8yhk1t
+      operationId: get-user-bookings
+      x-stoplight:
+        id: tj9ejzdot2uzf
+      description: Gets all the tickets for a user within the past year
+      security:
+        - BEARER: []
+  /booking:
+    post:
+      summary: Create a Booking
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - charge
+                  - id
+                properties:
+                  success:
+                    type: boolean
+                    x-stoplight:
+                      id: b3414mbi5y3lg
+                  charge:
+                    type: string
+                    x-stoplight:
+                      id: nmy0v3qm912q8
+                    description: Charge information from the payment gateway
+                  id:
+                    type: string
+                    x-stoplight:
+                      id: f1btui90zmyb3
+        "400":
+          description: "Bad Request: Created if it's not valid to book a ticket for a certain date."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - error
+                properties:
+                  success:
+                    type: boolean
+                    x-stoplight:
+                      id: pxv0k9m5smlwj
+                    default: false
+                  error:
+                    type: string
+                    x-stoplight:
+                      id: 9yzs08sz1h014
+                    description: Various information on why the charge failed
+      operationId: create-booking
+      x-stoplight:
+        id: e1ue969vb2bz3
+      description: Creates a new booking and processes the payment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - showing_id
+                - booking_date
+                - booking_time
+                - transaction_token
+                - seats
+                - theater
+              properties:
+                showing_id:
+                  type: string
+                  x-stoplight:
+                    id: ql60b7rf2xbpj
+                  format: uuid
+                booking_date:
+                  type: string
+                  x-stoplight:
+                    id: cysv9gxgzzhk9
+                booking_time:
+                  type: string
+                  x-stoplight:
+                    id: 0dqod77fz7jbh
+                transaction_token:
+                  type: string
+                  x-stoplight:
+                    id: 8kf7oh5icl0oz
+                  description: Token generated by the payment gateway
+                seats:
+                  type: number
+                  x-stoplight:
+                    id: cwosh4btdmeke
+                theater:
+                  type: string
+                  x-stoplight:
+                    id: tvtfy8zjrczkq
+        description: ""
+      security:
+        - BEARER: []
+    get:
+      summary: Fetch a Booking
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - cost
+                  - movie
+                  - seats
+                  - date
+                  - time
+                  - theater
+                properties:
+                  id:
+                    type: string
+                    x-stoplight:
+                      id: m6nq7d3lvmryh
+                  cost:
+                    type: number
+                    x-stoplight:
+                      id: aj4vgjzny1j10
+                  movie:
+                    type: object
+                    x-stoplight:
+                      id: 5qx5eu2yua90k
+                    required:
+                      - title
+                      - poster_url
+                      - id
+                    properties:
+                      title:
+                        type: string
+                        x-stoplight:
+                          id: fw3h830ql6leg
+                      poster_url:
+                        type: string
+                        x-stoplight:
+                          id: b9maxtcmy1b7m
+                      id:
+                        type: string
+                        x-stoplight:
+                          id: eczevb7ud9ke7
+                  seats:
+                    type: number
+                    x-stoplight:
+                      id: ff11bmzpzqt5v
+                  date:
+                    type: string
+                    x-stoplight:
+                      id: epgywwz91qfuf
+                  time:
+                    type: string
+                    x-stoplight:
+                      id: 7l2pgbf88zg6m
+                  theater:
+                    type: string
+                    x-stoplight:
+                      id: cftasyf102scq
+        "404":
+          description: Not Found
+      operationId: get-booking
+      x-stoplight:
+        id: tl8x407sevla4
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: The booking ID
+      security:
+        - BEARER: []
+      description: Gets a certain booking by ID
+    parameters: []
+  "/movie/{id}":
+    get:
+      summary: Fetch Movie Information
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - title
+                  - description
+                  - rating
+                  - runtime
+                  - cast
+                  - release_date
+                  - poster_url
+                  - did_review
+                properties:
+                  id:
+                    type: string
+                    x-stoplight:
+                      id: pmhiq5ibxr3w4
+                    format: uuid
+                  title:
+                    type: string
+                    x-stoplight:
+                      id: x28isx0k0c5sg
+                  description:
+                    type: string
+                    x-stoplight:
+                      id: ys6ivxsp06qkg
+                  rating:
+                    type: number
+                    x-stoplight:
+                      id: l0w1keqmwpl1c
+                    description: A rating from 0 to 5
+                  runtime:
+                    type: string
+                    x-stoplight:
+                      id: ajyhhxacry7ug
+                    description: Returned as runtime in minutes.
+                  cast:
+                    type: string
+                    x-stoplight:
+                      id: 1e3v5v8ofrmio
+                    description: Comma seperated string of lead cast members
+                  release_date:
+                    type: string
+                    x-stoplight:
+                      id: ivptoptwsua4e
+                    format: date
+                  poster_url:
+                    type: string
+                    x-stoplight:
+                      id: o2xjsy03tikil
+                    format: uri
+                    description: The URL for the image of the poster
+                  reviews:
+                    type: array
+                    x-stoplight:
+                      id: ccrc92pv6d2m0
+                    items:
+                      x-stoplight:
+                        id: 67q4qvgrfp9ah
+                      type: object
+                      required:
+                        - published
+                        - rating
+                        - content
+                      properties:
+                        published:
+                          type: string
+                          x-stoplight:
+                            id: bwlks76zsyusa
+                          format: date
+                        rating:
+                          type: number
+                          x-stoplight:
+                            id: h5z9v7xyev6ko
+                        content:
+                          type: string
+                          x-stoplight:
+                            id: 2g99w8ba96whi
+                  did_review:
+                    type: boolean
+                    x-stoplight:
+                      id: tzv0avd9nh10e
+                    description: Value is true if the user has already submited a review.
+      operationId: get-movie
+      x-stoplight:
+        id: hgbeeej62dj2n
+      security:
+        - BEARER: []
+      description: Gets the information for a single movie
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The ID of the movie
+  "/movie/{id}/showings":
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The ID of the movie
+    get:
+      summary: Fetch Showing Information
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - times
+                  - showings_end
+                  - price
+                properties:
+                  times:
+                    type: array
+                    x-stoplight:
+                      id: nfez1a6aurtmh
+                    description: Array of times that the movie is showing
+                    items:
+                      x-stoplight:
+                        id: gng75wzgcz8xz
+                      type: string
+                  showings_end:
+                    type: string
+                    x-stoplight:
+                      id: dqbgdizq308uf
+                    format: date
+                    description: Used to determine how far the user should be allowed to book a movie.
+                  price:
+                    type: number
+                    x-stoplight:
+                      id: zeacoekw34ryb
+                    description: Price of a single ticket
+        "400":
+          description: "Bad Request: Will also be throw if the movie does not have any showings."
+      operationId: get-movie-showings
+      x-stoplight:
+        id: qop0iq57cmaoc
+      description: Fetches all the available booking times and dates for a given movie.
+      security:
+        - BEARER: []
+  /movies:
+    get:
+      summary: Fetch All Movies
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  x-stoplight:
+                    id: szqhy18fso354
+                  type: object
+                  required:
+                    - id
+                    - title
+                    - poster_url
+                    - showings_start
+                  properties:
+                    id:
+                      type: string
+                      x-stoplight:
+                        id: 7l2v69pvfhyk0
+                    title:
+                      type: string
+                      x-stoplight:
+                        id: 27lku3l9b6k2r
+                    poster_url:
+                      type: string
+                      x-stoplight:
+                        id: p5o90d9v7rkh9
+                    showings_start:
+                      type: string
+                      x-stoplight:
+                        id: kz2yy93jjquhx
+                      format: date
+                      description: This is used by the frontend to determine if the movie is considered upcoming or not.
+      operationId: get-movies
+      x-stoplight:
+        id: 7nl3nw53arlqz
+      description: "Returns an array of all the upcoming movies that have a showing in the database, used for the home screen."
+      security:
+        - BEARER: []
+  /admin/showing:
+    post:
+      summary: Create A Showing (Admin)
+      tags: []
+      responses:
+        "201":
+          description: Created
+        "403":
+          description: Forbidden
+      operationId: create-showing
+      x-stoplight:
+        id: st74wtozns73t
+      description: Creates a new movie and showing.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - showing_start
+                - showing_end
+                - price
+                - poster_url
+                - times
+              properties:
+                title:
+                  type: string
+                  x-stoplight:
+                    id: 7jt8lxpq0j1oe
+                description:
+                  type: string
+                  x-stoplight:
+                    id: ax5tbs0cz1ddr
+                showing_start:
+                  type: string
+                  x-stoplight:
+                    id: y7z8woqjcfxqp
+                  format: date
+                showing_end:
+                  type: string
+                  x-stoplight:
+                    id: fzepav6x9iu7w
+                  format: date
+                price:
+                  type: number
+                  x-stoplight:
+                    id: 71aemdzvwzken
+                poster_url:
+                  type: string
+                  x-stoplight:
+                    id: izi8zajqsbnkx
+                times:
+                  type: array
+                  x-stoplight:
+                    id: hml6xu865mnxo
+                  items:
+                    x-stoplight:
+                      id: s2pqn8jwmvo6q
+                    type: string
+      security:
+        - BEARER: []
+    parameters: []
+    patch:
+      summary: Modify a Showing (Admin)
+      tags: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+      operationId: patch-showing
+      x-stoplight:
+        id: hyjket3opapkw
+      description: Modifies a showing/movie.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: The ID of the showing to modify
+      security:
+        - BEARER: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  x-stoplight:
+                    id: szka1vq28uco8
+                description:
+                  type: string
+                  x-stoplight:
+                    id: 7p9e3chhadzhw
+                showing_start:
+                  type: string
+                  x-stoplight:
+                    id: 5rmmhnqkt76fs
+                showing_end:
+                  type: string
+                  x-stoplight:
+                    id: ce5d4shrqzxxx
+                price:
+                  type: number
+                  x-stoplight:
+                    id: xr1rai0xw2grh
+                poster_url:
+                  type: string
+                  x-stoplight:
+                    id: 6ynqa7dak1v0w
+                times:
+                  type: array
+                  x-stoplight:
+                    id: 2y2b7yioyyydi
+                  items:
+                    x-stoplight:
+                      id: 9x06mwnxfujtg
+                    type: string
+        description: "If a property in the body is left blank, the API will not modify it."
+    delete:
+      summary: Delete a Showing (Admin)
+      tags: []
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+      operationId: delete-showing
+      x-stoplight:
+        id: dt0sot93eu44g
+      description: Removes a showing/movie
+      security:
+        - BEARER: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: The ID of the movie to delete
+  /admin/showings:
+    get:
+      summary: Fetch All Showings (Admin)
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  x-stoplight:
+                    id: lt16i55a0mqqf
+                  type: object
+                  required:
+                    - movie
+                    - id
+                    - release_date
+                    - price
+                  properties:
+                    movie:
+                      type: object
+                      x-stoplight:
+                        id: noxv1um1868sl
+                      required:
+                        - title
+                        - poster_url
+                      properties:
+                        title:
+                          type: string
+                          x-stoplight:
+                            id: ndnyq27b7vj8d
+                        poster_url:
+                          type: string
+                          x-stoplight:
+                            id: 4ksjew59fuvx2
+                    id:
+                      type: string
+                      x-stoplight:
+                        id: toa7w6zh60kdv
+                    release_date:
+                      type: string
+                      x-stoplight:
+                        id: zlxdlggosnkxp
+                    price:
+                      type: number
+                      x-stoplight:
+                        id: uruogqaedo5fp
+        "403":
+          description: Forbidden
+      operationId: get-admin-showings
+      x-stoplight:
+        id: hre2b8n9e1ioi
+      security:
+        - BEARER: []
+      description: Gets all the showings for an admin
+components:
+  schemas: {}
+  securitySchemes:
+    BEARER:
+      type: http
+      scheme: bearer
