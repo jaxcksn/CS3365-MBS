@@ -2,20 +2,11 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
-import {
-  AppShell,
-  Button,
-  Container,
-  Pill,
-  TextInput,
-  Title,
-} from "@mantine/core";
+import { AppShell, Button, Container, TextInput, Title } from "@mantine/core";
 import MovieCarousel from "./components/MovieCarousel";
 import { MovieCardProps } from "./components/MovieCard";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { BACKEND_URL } from "./main";
-import apiService from "./services/apiService";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "./providers/AuthContext";
 
 const mockData: MovieCardProps[] = [
@@ -83,9 +74,7 @@ function App() {
   const [upcomingLoading, setUpcomingLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
-  const [info, setInfo] = useState<AppInfo | null>(null);
-
-  const navigate = useNavigate();
+  const [_, setInfo] = useState<AppInfo | null>(null);
 
   const auth = useAuth();
 
