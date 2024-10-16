@@ -2,6 +2,10 @@
   background-color: var(--mantine-color);
 }
 
+.actions {
+  padding-right: var(--mantine-spacing-md);
+}
+
 .app-header {
   width: 100%;
   display: flex;
