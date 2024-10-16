@@ -74,7 +74,6 @@ def generate_refresh_token(user_id):
         print(err)
         raise Exception("Could not insert refresh token into the database")
     
-
 def revoke_token(refresh_token):
     try:
        with db.transaction() as tx:
@@ -141,14 +140,17 @@ def login_user():
             except Exception as err:
                 print(err)
                 return jsonify({'error': 'Could not generate tokens'}), 500
-            return jsonify({'access_token': access[0], 'expires': access[1], 'refresh': refresh[0], 'refresh_expires': refresh[1]}), 200
+            response = jsonify({'access_token': access[0], 
+                            'expires': datetime.datetime.fromtimestamp(access[1]).isoformat()})
+            response.set_cookie('refresh_token', refresh[0], expires=refresh[1], httponly=True, secure=True, max_age=7*24*60*60)
+            response.status_code = 200
+            return response
         else:
             return jsonify({'error': 'Invalid password'}), 401
 
 @app.route('/user/refresh', methods=['POST'])
 def refresh_user():
-    data = request.get_json()
-    refresh_token = data.get('refresh')
+    refresh_token = request.cookies.get('refresh_token')
     if not refresh_token:
         return jsonify({'error': 'Missing refresh token'}), 400
     
@@ -166,12 +168,14 @@ def refresh_user():
         access = generate_access_token(result['user'])
         refresh = generate_refresh_token(result['user'])
         
-        return jsonify({'access_token': access[0], 'expires': access[1], 'refresh': refresh[0], 'refresh_expires': refresh[1]}), 200
-    except Exception as err:
+        response = jsonify({'access_token': access[0], 'expires': access[1]})
+        response.set_cookie('refresh_token', refresh[0], expires=refresh[1], httponly=True, secure=True, max_age=7*24*60*60)
+        response.status_code = 200
+        return response
+    except Exception as err: 
         print(err)
         return jsonify({'error': 'Could not validate refresh token'}), 500
     
-
 @app.route('/user/logout', methods=['POST'])
 @login_required
 def logout_user(user_id):
@@ -184,11 +188,15 @@ def logout_user(user_id):
     try:
         if not refresh_token:
             with db.transaction() as tx:
-                tx.query("UPDATE `Refresh` SET `revoked`=TRUE WHERE `user`=:user", user=user_id)
-            return Response(status=200)
+                tx.query("DELETE FROM `Refresh` WHERE `user`=:user", user=user_id)
+            response = Response(status=200)
+            response.delete_cookie('refresh_token')
+            return response
         else:
             revoke_token(refresh_token)
-            return Response(status=200)
+            response = Response(status=200)
+            response.delete_cookie('refresh_token')
+            return response
     except Exception as err:
         print(err)
         return jsonify({'error': 'Could not log the user out.'}), 500
