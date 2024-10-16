@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
-import { AppShell, Container, Pill, TextInput, Title } from "@mantine/core";
+import { AppShell, Button, Container, TextInput, Title } from "@mantine/core";
 import MovieCarousel from "./components/MovieCarousel";
 import { MovieCardProps } from "./components/MovieCard";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { BACKEND_URL } from "./main";
+import { useAuth } from "./providers/AuthContext";
 
 const mockData: MovieCardProps[] = [
   {
@@ -61,8 +62,8 @@ const mockData: MovieCardProps[] = [
 ];
 
 interface AppInfo {
-  app_version: string;
-  app_name: string;
+  name: string;
+  version: string;
   id: number;
 }
 
@@ -73,7 +74,9 @@ function App() {
   const [upcomingLoading, setUpcomingLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
-  const [info, setInfo] = useState<AppInfo | null>(null);
+  const [_, setInfo] = useState<AppInfo | null>(null);
+
+  const auth = useAuth();
 
   useEffect(() => {
     //mock fetch
@@ -137,11 +140,9 @@ function App() {
             />
           </div>
           <div className="actions">
-            {info && (
-              <Pill c={"dark"} bg={"white"} size="lg">
-                {info.app_version}
-              </Pill>
-            )}
+            <Button variant="subtle" onClick={auth.logout}>
+              Logout
+            </Button>
           </div>
         </div>
       </AppShell.Header>

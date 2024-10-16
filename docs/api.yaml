@@ -3,12 +3,16 @@ x-stoplight:
   id: sm3gwkiehsujn
 info:
   title: MBS Backend
+  x-logo:
+    url: "https://github.com/jaxcksn/jaxcksn/blob/main/files/ttu_cs_light.png?raw=true"
+    backgroundColor: "#FFFFFF"
+    altText: "Texas Tech Department of Computer Science"
   version: 0.0.1
   summary: MBS API Contract
   description: This defines all the endpoints and routes that should exist in the API. This is meant to be a rough guide and may change as needed.
 servers:
-  - url: "http://localhost:3030"
-    description: Local Dev
+  - url: "http://localhost:5050"
+    description: Local
   - url: "https://api.jaxcksn.dev"
     description: Staging
 paths:
@@ -26,8 +30,6 @@ paths:
                 required:
                   - token
                   - expires
-                  - refresh
-                  - refresh_expires
                 properties:
                   token:
                     type: string
@@ -40,17 +42,7 @@ paths:
                       id: n2elput5hzms4
                     format: date-time
                     description: The expiration time of the access token
-                  refresh:
-                    type: string
-                    x-stoplight:
-                      id: 25y4p7lmvgls2
-                    description: The refresh token
-                  refresh_expires:
-                    type: string
-                    x-stoplight:
-                      id: duwavmqigyj4z
-                    format: date-time
-                    description: The time the refresh token expires
+          headers: {}
         "400":
           description: Bad Request
       operationId: user-login
@@ -58,7 +50,12 @@ paths:
         id: wjrx4x6sq75al
       description: "Logs the user into the MBS, returning an access token and a refresh token."
       security: []
-      parameters: []
+      parameters:
+        - schema:
+            type: string
+          in: cookie
+          name: refresh_token
+          description: Sent from the /login and /refresh endpoints.
       requestBody:
         content:
           application/json:
@@ -163,6 +160,10 @@ paths:
                   type: string
                   x-stoplight:
                     id: c03uj3vb9ni0f
+    parameters:
+      - schema:
+          type: string
+        in: cookie
   /user/logout:
     get:
       summary: Logout the User
@@ -177,6 +178,11 @@ paths:
       description: Logs the user out of the MBS and expires all refresh tokens.
       security:
         - BEARER: []
+    parameters:
+      - schema:
+          type: string
+        in: cookie
+        name: refresh_token
   /user/bookings:
     get:
       summary: Fetch the User's Bookings
@@ -240,6 +246,45 @@ paths:
       description: Gets all the tickets for a user within the past year
       security:
         - BEARER: []
+  /user/refresh:
+    post:
+      summary: Use the Refresh Token
+      tags: []
+      responses:
+        "200":
+          description: |-
+            OK
+
+            Will send a new refresh token.
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - access_token
+                  - expires
+                properties:
+                  access_token:
+                    type: string
+                    x-stoplight:
+                      id: nexorguteb3zn
+                  expires:
+                    type: string
+                    x-stoplight:
+                      id: 3ptg6b04kv564
+                    format: date
+      operationId: user-refresh-token
+      x-stoplight:
+        id: lr4z9z767mvax
+      description: Uses the refresh token to log in the user.
+      parameters:
+        - schema:
+            type: string
+          in: cookie
+          name: refresh_token
+          required: true
+          description: The refresh token granted in the login endpoint.
   /booking:
     post:
       summary: Create a Booking
