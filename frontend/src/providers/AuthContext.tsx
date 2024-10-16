@@ -46,12 +46,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (accessToken && expires) {
-      const refreshTime = expires.getTime() - Date.now() - 60000; // Refresh 1 minute before expiry
+      const refreshTime = expires.getTime() - Date.now() - 60000;
       const timeoutId = setTimeout(async () => {
         await apiService.refreshToken();
       }, refreshTime);
 
-      return () => clearTimeout(timeoutId); // Clean up on component unmount
+      return () => clearTimeout(timeoutId);
     }
   }, [accessToken, expires]);
 
