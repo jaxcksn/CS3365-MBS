@@ -18,10 +18,6 @@ export default function MovieCarousel({ data, loading }: MovieCarouselProps) {
   const theme = useMantineTheme();
   const isAboveSm = useMediaQuery(`(min-width: ${theme.breakpoints.sm})`);
 
-  /*
-  
-  */
-
   const slides = () => {
     return loading
       ? Array.from({ length: 6 }).map((_, i) => (
