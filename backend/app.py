@@ -66,7 +66,6 @@ def generate_refresh_token(user_id):
 
     try:
         token = jwt.encode(payload, os.getenv("JWT_SECRET"), algorithm='HS256')
-        expiretime = datetime.datetime.fromtimestamp(expires).strftime('%Y-%m-%d %H:%M:%S')
         return (token, expires)
     except Exception as err:
         print(err)
@@ -203,7 +202,7 @@ def logout_user(user_id):
 
 @app.route('/user/me', methods=['GET'])
 @login_required
-def protected(user_id):
+def protected(_):
     return Response('You are successfully logged in', status=200)
 
 if __name__ == '__main__':

@@ -1,3 +1,19 @@
+:root {
+  --bodyColor: var(--mantine-color-body);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bodyColor) !important;
+}
+
+#root {
+  height: 100%;
+}
+
 .header {
   background-color: var(--mantine-color);
 }
@@ -12,14 +28,21 @@
   justify-content: space-between;
   align-items: center;
   height: 100%;
+  background-color: var(--mantine-color-myColor-filled);
+  padding-left: var(--mantine-spacing-md);
+  padding-right: var(--mantine-spacing-md);
 
   .logo {
     flex: 1;
-    padding-left: var(--mantine-spacing-md);
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+    display: flex;
+    padding-right: var(--mantine-spacing-sm);
   }
 
   .search {
-    flex: 2;
+    flex: 4;
     display: flex;
     justify-content: center;
   }
@@ -28,14 +51,11 @@
     flex: 1;
     display: flex;
     justify-content: flex-end;
+    padding-left: var(--mantine-spacing-sm);
   }
 }
 
 .movie-list {
-  .mantine-Carousel-container {
-    padding: 1rem;
-  }
-
   .mantine-Carousel-controls {
     [data-inactive] {
       opacity: 0;
@@ -48,7 +68,7 @@
   cursor: pointer;
   @mixin hover {
     filter: brightness(0.8);
-    transform: scale(1.05);
+    transform: scale(0.95);
     transition: filter 0.3s;
     transition: transform 0.2s;
   }

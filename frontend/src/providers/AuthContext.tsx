@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import apiService from "../services/apiService";
+import apiService, { registerInformation } from "../services/apiService";
 
 interface AuthContextType {
   accessToken: string | null;
@@ -7,6 +7,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  register: (data: registerInformation) => Promise<number>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,9 +70,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoggedIn(false);
   };
 
+  const register = async (data: registerInformation) => {
+    const result = await apiService.register(data);
+    return result;
+  };
+
   return (
     <AuthContext.Provider
-      value={{ accessToken, isLoggedIn, loading, login, logout }}
+      value={{ accessToken, isLoggedIn, loading, login, logout, register }}
     >
       {children}
     </AuthContext.Provider>

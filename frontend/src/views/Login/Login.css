@@ -1,0 +1,22 @@
+.login-card {
+  width: 80vw;
+  max-width: 600px;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.link {
+  color: var(--mantine-color-myColor-filled);
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: var(--mantine-color-myColor-filled-hover);
+}
+
+.link:focus {
+  color: var(--mantine-color-myColor-filled-hover);
+}

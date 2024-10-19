@@ -14,10 +14,11 @@ import {
   MantineProvider,
 } from "@mantine/core";
 import Movie from "./views/Movie.tsx";
-import Login from "./views/Login.tsx";
+import Login from "./views/Login/Login.tsx";
 import Signup from "./views/Signup.tsx";
 import { AuthProvider, useAuth } from "./providers/AuthContext.tsx";
 
+export const APP_MODE = import.meta.env.VITE_MODE;
 export const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5050";
 
@@ -39,17 +40,21 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return children;
 };
 
+export default function setBodyColor({ color }: { color: string }) {
+  document.documentElement.style.setProperty("--bodyColor", color);
+}
+
 const myColor: MantineColorsTuple = [
-  "#ffe8e9",
-  "#ffd1d1",
-  "#fba0a0",
-  "#f76d6d",
-  "#f44141",
-  "#f22625",
-  "#f21616",
-  "#d8070b",
-  "#c10007",
-  "#a90003",
+  "#ffeaea",
+  "#fed4d4",
+  "#f4a8a8",
+  "#eb7979",
+  "#e45151",
+  "#e03737",
+  "#df292a",
+  "#c61b1d",
+  "#b11318",
+  "#9c0512",
 ];
 
 const theme = createTheme({
@@ -89,7 +94,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-      <MantineProvider theme={theme} defaultColorScheme="dark">
+      <MantineProvider theme={theme} defaultColorScheme="light">
         {<RouterProvider router={router} />}
       </MantineProvider>
     </AuthProvider>

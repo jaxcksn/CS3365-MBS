@@ -2,12 +2,21 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
-import { AppShell, Button, Container, TextInput, Title } from "@mantine/core";
+import {
+  AppShell,
+  Button,
+  Container,
+  TextInput,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import MovieCarousel from "./components/MovieCarousel";
 import { MovieCardProps } from "./components/MovieCard";
-import { useDebouncedCallback } from "@mantine/hooks";
-import { BACKEND_URL } from "./main";
+import { useDebouncedCallback, useMediaQuery } from "@mantine/hooks";
+import setBodyColor, { BACKEND_URL } from "./main";
 import { useAuth } from "./providers/AuthContext";
+import Logo from "./assets/RaiderWatchLogo.svg?react";
+import MiniLogo from "./assets/MiniLogo.svg?react";
 
 const mockData: MovieCardProps[] = [
   {
@@ -74,9 +83,12 @@ function App() {
   const [upcomingLoading, setUpcomingLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
-  const [_, setInfo] = useState<AppInfo | null>(null);
+  const [, setInfo] = useState<AppInfo | null>(null);
 
   const auth = useAuth();
+  const theme = useMantineTheme();
+  setBodyColor({ color: "var(--mantine-color-body)" });
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   useEffect(() => {
     //mock fetch
@@ -127,9 +139,13 @@ function App() {
     <AppShell header={{ height: 60 }} style={{ width: "100%" }}>
       <AppShell.Header pos={"relative"} className="header">
         <div className="app-header">
-          <Title className="logo" order={2}>
-            RaiderWatch
-          </Title>
+          <div className="logo">
+            {isMobile ? (
+              <MiniLogo fill="white" height={40} width={40} />
+            ) : (
+              <Logo fill="white" width={200} />
+            )}
+          </div>
           <div className="search">
             <TextInput
               w="100%"
@@ -140,16 +156,16 @@ function App() {
             />
           </div>
           <div className="actions">
-            <Button variant="subtle" onClick={auth.logout}>
+            <Button variant="subtle" color="white" onClick={auth.logout}>
               Logout
             </Button>
           </div>
         </div>
       </AppShell.Header>
       <Container fluid>
-        <Title order={2}>Now Playing</Title>
+        <Title order={3}>Now Playing</Title>
         <MovieCarousel data={filteredCurrentMovies} loading={currentLoading} />
-        <Title order={2}>Upcoming</Title>
+        <Title order={3}>Upcoming</Title>
         <MovieCarousel
           data={filteredUpcomingMovies}
           loading={upcomingLoading}
