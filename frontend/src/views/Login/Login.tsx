@@ -12,11 +12,13 @@ import {
   TextInput,
   Title,
   Text,
+  useMantineTheme,
 } from "@mantine/core";
 import Logo from "../../assets/RaiderWatchLogo.svg?react";
 import "./Login.css";
 import setBodyColor from "../../main";
 import { useForm } from "@mantine/form";
+import { useMediaQuery } from "@mantine/hooks";
 
 interface LoginFormInputs {
   username: string;
@@ -41,7 +43,8 @@ export default function Login() {
   const auth = useAuth();
   const navigate = useNavigate();
 
-  //const theme = useMantineTheme();
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   setBodyColor({ color: "var(--mantine-color-myColor-filled)" });
 
@@ -77,6 +80,7 @@ export default function Login() {
               type="email"
               key={form.key("username")}
               {...form.getInputProps("username")}
+              size={isMobile ? "md" : "sm"}
             />
             <PasswordInput
               withAsterisk
@@ -86,6 +90,7 @@ export default function Login() {
               key={form.key("password")}
               {...form.getInputProps("password")}
               pb={"md"}
+              size={isMobile ? "md" : "sm"}
             />
 
             <Button fullWidth variant="filled" type="submit">

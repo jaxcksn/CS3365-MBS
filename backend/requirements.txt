@@ -1,9 +1,8 @@
-Flask==3.0.3
-mysql-connector-python==9.0.0
+fastapi[standard]
+sqlalchemy
+asyncmy
+greenlet
 python-dotenv==1.0.1
-Flask-CORS==5.0.0
-records==0.6.0
-PyMySQL[rsa]==1.1.1
 cryptography==43.0.1
 bcrypt==4.2.0
 PyJWT==2.9.0

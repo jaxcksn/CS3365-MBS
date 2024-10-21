@@ -1,0 +1,32 @@
+.custom-prev,
+.custom-next {
+  position: absolute;
+  top: 50%;
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.625rem !important;
+  height: 1.625rem !important;
+  border-radius: 1.625rem;
+  background-color: var(--mantine-color-white);
+  box-shadow: var(--mantine-shadow-md);
+  transition: opacity 0.1s ease;
+  border: 1px solid var(--mantine-color-gray-3);
+  opacity: 0.85;
+}
+
+.custom-prev {
+  left: 10px;
+}
+
+.custom-next {
+  right: 10px;
+}
+
+.custom-prev i,
+.custom-next i {
+  font-size: 1rem;
+  color: black;
+}

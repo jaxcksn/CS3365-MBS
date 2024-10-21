@@ -9,6 +9,7 @@ import {
   Title,
   Flex,
   Select,
+  useMantineTheme,
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../providers/AuthContext";
@@ -21,6 +22,7 @@ import { zodResolver } from "mantine-form-zod-resolver";
 import { z } from "zod";
 import validator from "validator";
 import ZipCodeInput from "../components/ZipCodeInput";
+import { useMediaQuery } from "@mantine/hooks";
 
 const states = [
   "AL",
@@ -122,6 +124,9 @@ export default function Signup() {
   const auth = useAuth();
   const navigate = useNavigate();
 
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+
   setBodyColor({ color: "var(--mantine-color-myColor-filled)" });
 
   return (
@@ -160,6 +165,7 @@ export default function Signup() {
               placeholder="Email"
               key={form.key("email")}
               {...form.getInputProps("email")}
+              size={isMobile ? "md" : "sm"}
             />
             <PasswordInput
               label="Password"
@@ -167,10 +173,12 @@ export default function Signup() {
               type="password"
               key={form.key("password")}
               {...form.getInputProps("password")}
+              size={isMobile ? "md" : "sm"}
             />
             <PhoneNumberInput
               key={form.key("phone_number")}
               {...form.getInputProps("phone_number")}
+              size={isMobile ? "md" : "sm"}
             />
             <TextInput
               withAsterisk
@@ -179,6 +187,7 @@ export default function Signup() {
               type="text"
               key={form.key("address")}
               {...form.getInputProps("address")}
+              size={isMobile ? "md" : "sm"}
             />
             <Flex
               w={"100%"}
@@ -195,6 +204,7 @@ export default function Signup() {
                 key={form.key("city")}
                 {...form.getInputProps("city")}
                 w={{ base: "100%", sm: "50%" }}
+                size={isMobile ? "md" : "sm"}
               />
               <Flex
                 direction={"row"}
@@ -212,6 +222,7 @@ export default function Signup() {
                   key={form.key("state")}
                   {...form.getInputProps("state")}
                   w={{ base: "100%", sm: "50%" }}
+                  size={isMobile ? "md" : "sm"}
                 />
                 <ZipCodeInput
                   withAsterisk
@@ -219,6 +230,7 @@ export default function Signup() {
                   key={form.key("zip")}
                   {...form.getInputProps("zip")}
                   w={{ base: "100%", sm: "50%" }}
+                  size={isMobile ? "md" : "sm"}
                 />
               </Flex>
             </Flex>

@@ -11,70 +11,12 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import MovieCarousel from "./components/MovieCarousel";
-import { MovieCardProps } from "./components/MovieCard";
+import { Movie, MovieCardProps } from "./components/MovieCard";
 import { useDebouncedCallback, useMediaQuery } from "@mantine/hooks";
 import setBodyColor, { BACKEND_URL } from "./main";
 import { useAuth } from "./providers/AuthContext";
 import Logo from "./assets/RaiderWatchLogo.svg?react";
 import MiniLogo from "./assets/MiniLogo.svg?react";
-
-const mockData: MovieCardProps[] = [
-  {
-    title: "Joker: Folie à Deux",
-    type: "current",
-    badgeText: "Playing",
-    imageSrc:
-      "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
-  },
-  {
-    title: "Joker: Folie à Deux 2",
-    type: "current",
-    badgeText: "Playing",
-    imageSrc:
-      "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
-  },
-  {
-    title: "Joker: Folie à Deux 3",
-    type: "current",
-    badgeText: "Playing",
-    imageSrc:
-      "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
-  },
-  {
-    title: "Joker: Folie à Deux 4",
-    type: "current",
-    badgeText: "Playing",
-    imageSrc:
-      "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
-  },
-  {
-    title: "Joker: Folie à Deux 5",
-    type: "current",
-    badgeText: "Playing",
-    imageSrc:
-      "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
-  },
-  {
-    title: "Joker: Folie à Deux 6",
-    type: "current",
-    badgeText: "Playing",
-    imageSrc:
-      "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
-  },
-  {
-    title: "Joker: Folie à Deux 7",
-    type: "current",
-    badgeText: "Playing",
-    imageSrc:
-      "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
-  },
-];
-
-interface AppInfo {
-  name: string;
-  version: string;
-  id: number;
-}
 
 function App() {
   const [moviesCurrent, setMoviesCurrent] = useState<MovieCardProps[]>([]);
@@ -83,35 +25,55 @@ function App() {
   const [upcomingLoading, setUpcomingLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
-  const [, setInfo] = useState<AppInfo | null>(null);
 
   const auth = useAuth();
   const theme = useMantineTheme();
   setBodyColor({ color: "var(--mantine-color-body)" });
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+  const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
 
   useEffect(() => {
-    //mock fetch
-    setTimeout(() => {
-      setMoviesCurrent(mockData);
-      setCurrentLoading(false);
-    }, 5000);
-
-    setTimeout(() => {
-      setMoviesUpcoming(mockData);
-      setUpcomingLoading(false);
-    }, 5600);
-  }, []);
-
-  useEffect(() => {
-    fetch(BACKEND_URL + "/", {
-      method: "GET",
-      headers: {},
-    }).then((response) => {
-      response.json().then((data) => {
-        setInfo(data);
+    const fetchMovies = async () => {
+      const response = await fetch(`${BACKEND_URL}/movies`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${auth.accessToken}`,
+        },
+        credentials: "include",
       });
-    });
+      const data = (await response.json()) as Movie[];
+
+      setMoviesCurrent(
+        data
+          .filter((movie) => {
+            return new Date(movie.showings_start) <= new Date();
+          })
+          .map((movie) => {
+            return {
+              movie: movie,
+            } as MovieCardProps;
+          })
+      );
+
+      setMoviesUpcoming(
+        data
+          .filter((movie) => {
+            return new Date(movie.showings_start) > new Date();
+          })
+          .map((movie) => {
+            return {
+              movie: movie,
+            } as MovieCardProps;
+          })
+      );
+
+      setTimeout(() => {
+        setCurrentLoading(false);
+        setUpcomingLoading(false);
+      }, 4000);
+    };
+
+    fetchMovies();
   }, []);
 
   const setValue = async (value: string) => {
@@ -127,12 +89,11 @@ function App() {
     setUpcomingLoading(false);
   }, 200);
 
-  // Filter movies based on the search query
-  const filteredCurrentMovies = moviesCurrent.filter((movie) =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCurrentMovies = moviesCurrent.filter((a) =>
+    a.movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  const filteredUpcomingMovies = moviesUpcoming.filter((movie) =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUpcomingMovies = moviesUpcoming.filter((a) =>
+    a.movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -140,20 +101,22 @@ function App() {
       <AppShell.Header pos={"relative"} className="header">
         <div className="app-header">
           <div className="logo">
-            {isMobile ? (
+            {!isMobile && isMd ? (
               <MiniLogo fill="white" height={40} width={40} />
             ) : (
               <Logo fill="white" width={200} />
             )}
           </div>
           <div className="search">
-            <TextInput
-              w="100%"
-              placeholder="Search for a movie"
-              leftSection={<i className="bi bi-search"></i>}
-              value={inputValue}
-              onChange={(event) => setValue(event.currentTarget.value)}
-            />
+            {!isMobile && (
+              <TextInput
+                w="100%"
+                placeholder="Search for a movie"
+                leftSection={<i className="bi bi-search"></i>}
+                value={inputValue}
+                onChange={(event) => setValue(event.currentTarget.value)}
+              />
+            )}
           </div>
           <div className="actions">
             <Button variant="subtle" color="white" onClick={auth.logout}>
@@ -162,10 +125,27 @@ function App() {
           </div>
         </div>
       </AppShell.Header>
-      <Container fluid>
-        <Title order={3}>Now Playing</Title>
+      <Container fluid p={0} pb={isMobile ? "md" : 0} h={"100%"}>
+        {isMobile && (
+          <TextInput
+            w="100%"
+            placeholder="Search for a movie"
+            leftSection={<i className="bi bi-search"></i>}
+            value={inputValue}
+            onChange={(event) => setValue(event.currentTarget.value)}
+            size="md"
+            p="md"
+            variant="filled"
+            pb={0}
+          />
+        )}
+        <Title order={3} pl={"md"} pt={"sm"} pb={"sm"}>
+          Now Playing
+        </Title>
         <MovieCarousel data={filteredCurrentMovies} loading={currentLoading} />
-        <Title order={3}>Upcoming</Title>
+        <Title order={3} pl={"md"} pt={"sm"} pb={"sm"}>
+          Upcoming
+        </Title>
         <MovieCarousel
           data={filteredUpcomingMovies}
           loading={upcomingLoading}

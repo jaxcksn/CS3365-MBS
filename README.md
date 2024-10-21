@@ -92,8 +92,10 @@ pip install --no-cache-dir -r requirements.txt
 Once that is finished, we can start the service:
 
 ```bash
-python app.py
+fastapi dev server/main.py --port 5050
 ```
+
+Note: The port must be 5050 to properly connect with the frontend.
 
 #### Starting the Frontend:
 

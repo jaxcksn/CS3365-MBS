@@ -5,6 +5,7 @@ interface AuthContextType {
   accessToken: string | null;
   isLoggedIn: boolean;
   loading: boolean;
+  hasRefresh: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (data: registerInformation) => Promise<number>;
@@ -23,17 +24,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [expires, setExpires] = useState<Date | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+  const [hasRefresh, setHasRefresh] = useState(false);
 
   useEffect(() => {
+    const isAuthRoute =
+      window.location.pathname === "/login" ||
+      window.location.pathname === "/signup";
+
     const checkLoggedIn = async () => {
       try {
         const result = await apiService.refreshToken();
         if (result.access_token) {
           setAccessToken(result.access_token);
           setExpires(new Date(result.expires));
+          setHasRefresh(true);
           setIsLoggedIn(true);
         } else {
           setIsLoggedIn(false);
+          setHasRefresh(false);
         }
       } catch {
         setIsLoggedIn(false);
@@ -42,7 +50,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     };
 
-    checkLoggedIn();
+    if (!isAuthRoute) {
+      checkLoggedIn();
+    } else {
+      setLoading(false);
+      return;
+    }
   }, []);
 
   useEffect(() => {
@@ -60,6 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const result = await apiService.login(email, password);
     if (result.access_token) {
       setAccessToken(result.access_token);
+      setHasRefresh(true);
       setIsLoggedIn(true);
     }
   };
@@ -67,6 +81,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     apiService.logout(accessToken ?? ""); // Call the logout API, revoke refresh tokens, etc.
     setAccessToken(null);
+    setHasRefresh(false);
+    document.cookie =
+      "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     setIsLoggedIn(false);
   };
 
@@ -77,7 +94,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ accessToken, isLoggedIn, loading, login, logout, register }}
+      value={{
+        accessToken,
+        hasRefresh,
+        isLoggedIn,
+        loading,
+        login,
+        logout,
+        register,
+      }}
     >
       {children}
     </AuthContext.Provider>

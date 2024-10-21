@@ -22,6 +22,25 @@ export const APP_MODE = import.meta.env.VITE_MODE;
 export const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5050";
 
+const RedirectIfAuthenticated = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const { accessToken, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return <div></div>;
+  }
+
+  if (accessToken) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isLoggedIn, loading } = useAuth();
   const location = useLocation();
@@ -83,11 +102,19 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <RedirectIfAuthenticated>
+        <Login />
+      </RedirectIfAuthenticated>
+    ),
   },
   {
     path: "/signup",
-    element: <Signup />,
+    element: (
+      <RedirectIfAuthenticated>
+        <Signup />
+      </RedirectIfAuthenticated>
+    ),
   },
 ]);
 
@@ -95,7 +122,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
       <MantineProvider theme={theme} defaultColorScheme="light">
-        {<RouterProvider router={router} />}
+        <RouterProvider router={router} />
       </MantineProvider>
     </AuthProvider>
   </StrictMode>

@@ -1,4 +1,3 @@
--- Active: 1728346571669@@127.0.0.1@3306@mbs
 CREATE TABLE IF NOT EXISTS `Showing`(
     `id` CHAR(36) NOT NULL,
     `movie` CHAR(36) NOT NULL,
@@ -17,8 +16,10 @@ CREATE TABLE  IF NOT EXISTS `Review`(
     `movie` CHAR(36) NOT NULL,
     PRIMARY KEY(`id`)
 );
+
 CREATE TABLE IF NOT EXISTS `Movie`(
     `id` CHAR(36) NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
     `description` TEXT NOT NULL,
     `runtime` INT NOT NULL,
     `cast` TEXT NOT NULL,
@@ -64,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `User`(
     `password` VARCHAR(255) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
     `zipcode` CHAR(5) NOT NULL,
+    `city` VARCHAR(255) NOT NULL,
     `state` CHAR(2) NOT NULL,
     `phone` VARCHAR(255) NOT NULL,
     `role` VARCHAR(255) NOT NULL,
@@ -92,3 +94,8 @@ ALTER TABLE
     `Ticket` ADD CONSTRAINT `ticket_showing_foreign` FOREIGN KEY(`showing`) REFERENCES `Showing`(`id`);
 
 INSERT INTO `App`(`version`, `name`) VALUES ('0.0.1', 'Movie Booking System');
+
+/*INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('','',139,'',DATE('2024-10-01'),'','');*/
+INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('0708262a-7fe8-457f-9643-90dc81395e7b','After two decades as one of the most beloved and enduring musicals on the stage, Wicked makes its long-awaited journey to the big screen as a spectacular, generation-defining two-part cinematic event this holiday season.',160,'Cynthia Erivo, Ariana Grande, Jonathan Bailey',DATE('2024-11-22'),'https://m.media-amazon.com/images/M/MV5BMzE0NjU1NjctNTY5Mi00OGE2LWJkYjktZDI0MTNjN2RhNDMwXkEyXkFqcGc@._V1_.jpg','Wicked');
+INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('b65b5a84-ff90-407d-bf5b-9fd9a1152b51','Struggling with his dual identity, failed comedian Arthur Fleck meets the love of his life, Harley Quinn, while incarcerated at Arkham State Hospital.',139,'Joaquin Phoenix, Lady Gaga, Brendan Gleeson',DATE('2024-10-01'),'https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834','Joker: Folie à Deux');
+INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('d950a7f6-12c8-4e04-9727-9574024a91d3','After a shipwreck, an intelligent robot called Roz is stranded on an uninhabited island. To survive the harsh environment, Roz bonds with the island\'s animals and cares for an orphaned baby goose.',139,'Lupita Nyong\'o, Pedro Pascal, Kit Connor',DATE('2024-09-27'),'https://m.media-amazon.com/images/M/MV5BZjM2M2E3YzAtZDJjYy00MDhkLThiYmItOGZhNzQ3NTgyZmI0XkEyXkFqcGc@._V1_FMjpg_UY5000_.jpg','The Wild Robot');

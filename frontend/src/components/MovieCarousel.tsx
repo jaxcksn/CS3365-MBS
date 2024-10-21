@@ -1,59 +1,122 @@
-import { Carousel } from "@mantine/carousel";
 import MovieCard, { MovieCardProps } from "./MovieCard";
-import {
-  AspectRatio,
-  Center,
-  Skeleton,
-  Text,
-  useMantineTheme,
-} from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { Center, Skeleton, Text, useMantineTheme } from "@mantine/core";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
 
 export interface MovieCarouselProps {
   data: MovieCardProps[];
   loading: boolean;
 }
+import "swiper/css";
+import "swiper/css/navigation";
+import { useMediaQuery, useViewportSize } from "@mantine/hooks";
+
+import "../styles/MovieCard.css";
+import { useEffect, useRef } from "react";
+const posterAspectRatio = 414 / 620;
 
 export default function MovieCarousel({ data, loading }: MovieCarouselProps) {
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+  const swiperRef = useRef<any>(null);
+
+  const { height, width } = useViewportSize();
+  const posterSize = height * 0.35 * posterAspectRatio;
+
   const theme = useMantineTheme();
-  const isAboveSm = useMediaQuery(`(min-width: ${theme.breakpoints.sm})`);
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+
+  const containerWidth = width - 32;
+
+  const slidesPerView = () => {
+    if (isMobile) {
+      return 1;
+    }
+    return Math.min(Math.floor(containerWidth / posterSize), 7);
+  };
+
+  const spaceBetween = () => {
+    const maxSlides = slidesPer;
+    const calculatedSpaceBetween =
+      (containerWidth - maxSlides * posterSize) / (maxSlides - 1);
+    return Math.min(Math.max(calculatedSpaceBetween, 10), 50);
+  };
+
+  useEffect(() => {
+    if (swiperRef.current && prevRef.current && nextRef.current) {
+      swiperRef.current.params.navigation.prevEl = prevRef.current;
+      swiperRef.current.params.navigation.nextEl = nextRef.current;
+      swiperRef.current.navigation.init();
+      swiperRef.current.navigation.update();
+    }
+  }, [data]);
+
+  const slidesPer = slidesPerView();
 
   const slides = () => {
     return loading
-      ? Array.from({ length: 6 }).map((_, i) => (
-          <Carousel.Slide key={i}>
-            <AspectRatio ratio={414 / 620} mx="auto">
-              <Skeleton />
-            </AspectRatio>
-          </Carousel.Slide>
+      ? Array.from({ length: slidesPer }).map((_, i) => (
+          <SwiperSlide key={i}>
+            <Skeleton
+              height={isMobile ? "35svh" : "35vh"}
+              width={isMobile ? "100%" : posterSize}
+            />
+          </SwiperSlide>
         ))
-      : data.map((item) => (
-          <Carousel.Slide key={item.title}>
-            <MovieCard {...item} />
-          </Carousel.Slide>
+      : data.map((item, index) => (
+          <SwiperSlide
+            key={item.movie.id}
+            virtualIndex={index}
+            style={
+              slidesPer < 2
+                ? {
+                    display: "flex",
+                    justifyContent: "center",
+                  }
+                : {
+                    maxWidth: posterSize,
+                    width: posterSize,
+                  }
+            }
+          >
+            <MovieCard {...item} width={posterSize} />
+          </SwiperSlide>
         ));
   };
 
   return data.length == 0 && !loading ? (
-    <Center h={300}>
+    <Center h={isMobile ? "35svh" : "35vh"}>
       <Text>No results found...</Text>
     </Center>
   ) : (
-    <Carousel
-      className="movie-list"
-      slideGap="md"
-      loop
-      slideSize={{
-        xs: `${(1 / 3) * 100}%`,
-        sm: `${(1 / 6) * 100}%`,
-        base: `${(1 / 2) * 100}%`,
-      }}
-      align="start"
-      draggable={!isAboveSm ? data.length > 4 : data.length > 6}
-      withControls={!isAboveSm ? data.length > 4 : data.length > 6}
-      withKeyboardEvents={!isAboveSm ? data.length > 4 : data.length > 6}
-    >
-      {slides()}
-    </Carousel>
+    <div style={{ position: "relative" }}>
+      <Swiper
+        modules={[Navigation]}
+        slidesPerView={slidesPer}
+        spaceBetween={spaceBetween()}
+        loop={data.length > slidesPer}
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
+        navigation={{
+          prevEl: prevRef.current,
+          nextEl: nextRef.current,
+        }}
+        style={{ padding: "0 16px" }}
+      >
+        {slides()}
+      </Swiper>
+      {(slidesPer > 1 && isMobile) ||
+        (!loading && data.length > slidesPer && (
+          <>
+            <button ref={prevRef} className="custom-prev" onClick={() => {}}>
+              <i className="bi bi-chevron-left" />
+            </button>
+            <button ref={nextRef} className="custom-next" onClick={() => {}}>
+              <i className="bi bi-chevron-right" />
+            </button>
+          </>
+        ))}
+    </div>
   );
 }
