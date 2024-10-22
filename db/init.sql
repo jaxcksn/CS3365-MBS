@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS `mbs`;
+USE `mbs`;
+
 CREATE TABLE IF NOT EXISTS `Showing`(
     `id` CHAR(36) NOT NULL,
     `movie` CHAR(36) NOT NULL,
@@ -7,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `Showing`(
     `seat_price` DECIMAL(4, 2) NOT NULL,
     PRIMARY KEY(`id`)
 );
+
 CREATE TABLE  IF NOT EXISTS `Review`(
     `id` CHAR(36) NOT NULL,
     `rating` TINYINT NOT NULL,
@@ -93,9 +97,90 @@ ALTER TABLE
 ALTER TABLE
     `Ticket` ADD CONSTRAINT `ticket_showing_foreign` FOREIGN KEY(`showing`) REFERENCES `Showing`(`id`);
 
+
+/* DUMMY / MOCK DATA BELOW */
+
 INSERT INTO `App`(`version`, `name`) VALUES ('0.0.1', 'Movie Booking System');
 
 /*INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('','',139,'',DATE('2024-10-01'),'','');*/
 INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('0708262a-7fe8-457f-9643-90dc81395e7b','After two decades as one of the most beloved and enduring musicals on the stage, Wicked makes its long-awaited journey to the big screen as a spectacular, generation-defining two-part cinematic event this holiday season.',160,'Cynthia Erivo, Ariana Grande, Jonathan Bailey',DATE('2024-11-22'),'https://m.media-amazon.com/images/M/MV5BMzE0NjU1NjctNTY5Mi00OGE2LWJkYjktZDI0MTNjN2RhNDMwXkEyXkFqcGc@._V1_.jpg','Wicked');
 INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('b65b5a84-ff90-407d-bf5b-9fd9a1152b51','Struggling with his dual identity, failed comedian Arthur Fleck meets the love of his life, Harley Quinn, while incarcerated at Arkham State Hospital.',139,'Joaquin Phoenix, Lady Gaga, Brendan Gleeson',DATE('2024-10-01'),'https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834','Joker: Folie à Deux');
 INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('d950a7f6-12c8-4e04-9727-9574024a91d3','After a shipwreck, an intelligent robot called Roz is stranded on an uninhabited island. To survive the harsh environment, Roz bonds with the island\'s animals and cares for an orphaned baby goose.',139,'Lupita Nyong\'o, Pedro Pascal, Kit Connor',DATE('2024-09-27'),'https://m.media-amazon.com/images/M/MV5BZjM2M2E3YzAtZDJjYy00MDhkLThiYmItOGZhNzQ3NTgyZmI0XkEyXkFqcGc@._V1_FMjpg_UY5000_.jpg','The Wild Robot');
+
+
+INSERT INTO `User`(id, email, password, address, zipcode, city, state, phone, role) VALUES (
+    'acf3fecb-8d9f-4dd1-afb4-2cd0f094040a',
+    'email@email.com',
+    '$2b$12$PuTOpuSrxuiKw9hFzm70fO60jZ7Q1fxPeys0EkqH78JpBsRLBeSQO',	
+    '123 Ave Q',
+    '77915',
+    'Lubbock',
+    'TX',
+    '555-123-4567',
+    'user'
+)
+
+INSERT INTO `User`(id, email, password, address, zipcode, city, state, phone, role) VALUES (
+    'b1d0c6a7-e928-492c-9fa5-689b1483ed11',
+    'admin@email.com',
+    '$2b$12$PuTOpuSrxuiKw9hFzm70fO60jZ7Q1fxPeys0EkqH78JpBsRLBeSQO',	
+    '123 Ave Q',
+    '77915',
+    'Lubbock',
+    'TX',
+    '555-123-4566',
+    'admin'
+)
+
+INSERT INTO `User`(id, email, password, address, zipcode, city, state, phone, role) VALUES (
+    'a3c7317b-4233-435c-9b75-5ab4329315ee',
+    'dummy@email.com',
+    '$2b$12$PuTOpuSrxuiKw9hFzm70fO60jZ7Q1fxPeys0EkqH78JpBsRLBeSQO',	
+    '123 Ave Q',
+    '77915',
+    'Lubbock',
+    'TX',
+    '555-123-4569',
+    'user'
+)
+
+INSERT INTO Showing(id,movie,seat_price,start_date,end_date,times) 
+SELECT 
+    'b7cb5d53-65bd-4611-9899-5d73c2ea8a08',
+    id,
+    10.99,
+    DATE('2024-10-20'),
+    DATE('2024-11-20'),
+    '["9:00AM","10:00AM","2:00PM","5:00PM"]'
+FROM Movie
+WHERE title='The Wild Robot';
+
+INSERT INTO Review(id, movie, rating, text, user, created) 
+VALUES (
+    '506ce716-8853-4321-882f-f49851f334ab',
+    'd950a7f6-12c8-4e04-9727-9574024a91d3',
+    4,
+    'Some random review text here.',
+    'acf3fecb-8d9f-4dd1-afb4-2cd0f094040a',
+    CURRENT_DATE()
+)
+
+INSERT INTO Review(id, movie, rating, text, user, created) 
+VALUES (
+    '46943e7a-cee7-485e-8fc9-5f973de981f3',
+    'd950a7f6-12c8-4e04-9727-9574024a91d3',
+    3,
+    'Some other random review text here.',
+    'a3c7317b-4233-435c-9b75-5ab4329315ee',
+    CURRENT_DATE()
+)
+
+
+INSERT INTO `Theater`(id, name) 
+VALUES ('7055ba02-f0c3-4c2f-8f8e-3ca6c3cd6977', 'Lubbock'),
+('dfffd649-c263-45ae-8dbc-ed64631c55d0', 'Abliene'),
+('8710624d-88f7-4efa-b16a-33e39c63b7c1','Armarillo'),
+('a925644d-aac2-48b1-9714-d63b47cfa450', 'Plainview'),
+('1833f007-fd2f-41e4-8ad5-b8093b01a21c', 'Levelland'),
+('23e2ffb4-368b-4663-9383-0340216c0cd3','Synder');
+
