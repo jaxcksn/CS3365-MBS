@@ -85,6 +85,7 @@ docker compose up -d
 First, install the backend requirements (you only have to do this once):
 
 ```bash
+cd ..
 cd backend
 pip install --no-cache-dir -r requirements.txt
 ```
@@ -102,6 +103,7 @@ Note: The port must be 5050 to properly connect with the frontend.
 First, install the requirements for the frontend (you only have to do this once):
 
 ```bash
+cd ..
 cd frontend
 npm install
 ```
