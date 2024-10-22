@@ -1,21 +1,4 @@
 services:
-  # backend:
-  #   build:
-  #     context: ../backend
-  #     dockerfile: dockerfile
-  #   ports:
-  #     - "5050:5050"
-  #   environment:
-  #     - FLASK_ENV=development
-  #     - FLASK_DEBUG=1
-  #     - DATABASE_URL=mysql://root:root@db:3306/mbs
-  #     - PORT=5050
-  #   volumes:
-  #     - ../backend:/app
-  #   depends_on:
-  #     - db
-  #   networks:
-  #     - dev-network
   db:
     image: mysql:8.4
     environment:
@@ -26,12 +9,27 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - "db_data:/var/lib/mysql"
-      - ../db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - "mbs_db_data:/var/lib/mysql"
+    networks:
+      - dev-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      timeout: 10s
+  flyway:
+    image: flyway/flyway
+    command: -X migrate
+    volumes:
+      - ../db/migrations:/flyway/sql
+      - ../db/migrations/flyway.conf:/flyway/conf/flyway.conf
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - dev-network
 volumes:
-  db_data:
+  mbs_db_data:
 networks:
   dev-network:
     driver: bridge
