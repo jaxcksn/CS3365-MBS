@@ -16,7 +16,7 @@ DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
 DB_HOST = os.getenv("DATABASE_HOST", "localhost")
 DB_URL = f"mysql+asyncmy://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:3306/mbs"
 
-engine = create_async_engine(DB_URL, echo=False)
+engine = create_async_engine(DB_URL, echo=False, pool_pre_ping=True, pool_recycle=3600)
 async_session_factory = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
