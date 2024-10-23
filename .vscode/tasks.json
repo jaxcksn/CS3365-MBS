@@ -1,0 +1,105 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Check Database",
+      "type": "shell",
+      "command": "nc -zv localhost 3306 || (echo 'Database could not be found, please run `docker compose up -d` in the dev-compose folder before starting the backend.' && exit 1)",
+      "problemMatcher": [],
+      "windows": {
+        "command": "powershell -Command \"if (!(Test-NetConnection -ComputerName localhost -Port 3306 -InformationLevel Quiet)) { Write-Host 'Database is not running, please run docker compose up -d in the dev-compose folder before starting the backend.'; exit 1 }\""
+      },
+      "icon": {
+        "id": "database",
+        "color": "terminal.ansiYellow"
+      }
+    },
+    {
+      "label": "PIP Install",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "command": "pip install --no-cache-dir -r requirements.txt",
+      "dependsOn": ["Check Database"],
+      "problemMatcher": [],
+      "icon": {
+        "id": "snake",
+        "color": "terminal.ansiGreen"
+      }
+    },
+    {
+      "label": "NPM Install",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": [],
+      "command": "npm install",
+      "icon": {
+        "id": "cloud-download",
+        "color": "terminal.ansiMagenta"
+      }
+    },
+    {
+      "label": "Start Vite Server",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "command": "npm run dev",
+      "isBackground": true,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "focus": true,
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": ".*",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE v\\d+\\.\\d+\\.\\d+",
+          "endsPattern": "Local:\\s+http://localhost:[0-9]+"
+        }
+      },
+      "dependsOn": ["NPM Install"],
+      "icon": {
+        "id": "rocket",
+        "color": "terminal.ansiCyan"
+      }
+    },
+    {
+      "label": "Stop All Tasks",
+      "command": "echo ${input:terminate}",
+      "type": "shell",
+      "problemMatcher": [],
+      "icon": {
+        "color": "terminal.ansiRed",
+        "id": "stop"
+      }
+    },
+    {
+      "label": "Run Database",
+      "type": "shell",
+      "command": "docker-compose up -d"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "terminate",
+      "type": "command",
+      "command": "workbench.action.tasks.terminate",
+      "args": "terminateAll"
+    }
+  ]
+}

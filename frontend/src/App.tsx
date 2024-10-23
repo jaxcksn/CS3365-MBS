@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import "@mantine/core/styles.css";
-import "@mantine/carousel/styles.css";
 import {
   AppShell,
   Button,
