@@ -11,7 +11,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useMediaQuery, useViewportSize } from "@mantine/hooks";
 
-import "../styles/MovieCard.css";
+import "./movieCarousel.css";
 import { useEffect, useRef } from "react";
 const posterAspectRatio = 414 / 620;
 
@@ -84,7 +84,7 @@ export default function MovieCarousel({ data, loading }: MovieCarouselProps) {
         ));
   };
 
-  return data.length == 0 && !loading ? (
+  return data.length === 0 && !loading ? (
     <Center h={isMobile ? "35svh" : "35vh"}>
       <Text>No results found...</Text>
     </Center>

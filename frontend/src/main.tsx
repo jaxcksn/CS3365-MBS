@@ -1,6 +1,7 @@
+/// <reference types="vite-plugin-svgr/client" />
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
+import Home from "./views/home/Home.tsx";
 import "./index.css";
 import {
   createBrowserRouter,
@@ -9,20 +10,29 @@ import {
   useLocation,
 } from "react-router-dom";
 import {
+  AppShell,
   createTheme,
   MantineColorsTuple,
   MantineProvider,
 } from "@mantine/core";
-import Movie from "./views/Movie.tsx";
-import Login from "./views/Login/Login.tsx";
-import Signup from "./views/Signup.tsx";
-import { AuthProvider, useAuth } from "./providers/AuthContext.tsx";
+import Movie from "./views/movie/Movie.tsx";
+import Login from "./views/login/Login.tsx";
+import Signup from "./views/login/Signup.tsx";
+import { AuthProvider } from "./contexts/AuthContext.tsx";
+import { useAuth } from "./hooks/ProviderHooks.ts";
+import { MBSProvider } from "./contexts/MBSContext.tsx";
+import { AppHeader } from "./components/layout/AppHeader.tsx";
 
-export const APP_MODE = import.meta.env.VITE_MODE;
-export const BACKEND_URL =
-  import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5050";
+export const RootView = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <AppShell header={{ height: 60 }} style={{ width: "100%" }}>
+      <AppHeader showSearch={false} />
+      {children}
+    </AppShell>
+  );
+};
 
-const RedirectIfAuthenticated = ({
+export const RedirectIfAuthenticated = ({
   children,
 }: {
   children: React.ReactNode;
@@ -31,7 +41,7 @@ const RedirectIfAuthenticated = ({
   const location = useLocation();
 
   if (loading) {
-    return <div></div>;
+    return <div />;
   }
 
   if (accessToken) {
@@ -41,16 +51,16 @@ const RedirectIfAuthenticated = ({
   return children;
 };
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isLoggedIn, loading } = useAuth();
+export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const auth = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (auth?.loading || auth === undefined) {
     // Render a loading screen or spinner while checking the authentication status
-    return <div></div>;
+    return <div />;
   }
 
-  if (!isLoggedIn) {
+  if (auth?.isLoggedIn) {
     // If the user is not authenticated, redirect to login page and save the current location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -58,10 +68,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // If the user is authenticated, render the protected page
   return children;
 };
-
-export default function setBodyColor({ color }: { color: string }) {
-  document.documentElement.style.setProperty("--bodyColor", color);
-}
 
 const myColor: MantineColorsTuple = [
   "#ffeaea",
@@ -88,7 +94,7 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <ProtectedRoute>
-        <App />
+        <Home />
       </ProtectedRoute>
     ),
   },
@@ -96,7 +102,9 @@ const router = createBrowserRouter([
     path: "/movie/:id",
     element: (
       <ProtectedRoute>
-        <Movie />
+        <RootView>
+          <Movie />
+        </RootView>
       </ProtectedRoute>
     ),
   },
@@ -120,10 +128,12 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <AuthProvider>
-      <MantineProvider theme={theme} defaultColorScheme="light">
-        <RouterProvider router={router} />
-      </MantineProvider>
-    </AuthProvider>
+    <MBSProvider>
+      <AuthProvider>
+        <MantineProvider theme={theme} defaultColorScheme="light">
+          <RouterProvider router={router} />
+        </MantineProvider>
+      </AuthProvider>
+    </MBSProvider>
   </StrictMode>
 );

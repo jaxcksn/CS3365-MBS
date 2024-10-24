@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "../main";
+import { BACKEND_URL } from "../constants/Constants";
 
 export interface registerInformation {
   email: string;
@@ -11,7 +11,7 @@ export interface registerInformation {
 }
 
 class ApiService {
-  async login(email: string, password: string) {
+  public async login(email: string, password: string) {
     const response = await fetch(BACKEND_URL + "/user/login", {
       method: "POST",
       headers: {
@@ -23,7 +23,7 @@ class ApiService {
     return response.json();
   }
 
-  async register(data: registerInformation) {
+  public async register(data: registerInformation) {
     const response = await fetch(BACKEND_URL + "/user/register", {
       method: "POST",
       headers: {
@@ -35,7 +35,7 @@ class ApiService {
     return response.status;
   }
 
-  async refreshToken() {
+  public async refreshToken() {
     const response = await fetch(BACKEND_URL + "/user/refresh", {
       method: "POST",
       headers: {
@@ -48,7 +48,7 @@ class ApiService {
     return response.json();
   }
 
-  async logout(accessToken: string) {
+  public async logout(accessToken: string) {
     const response = await fetch(BACKEND_URL + "/user/logout", {
       method: "POST",
       headers: {
@@ -58,7 +58,7 @@ class ApiService {
       body: "{}",
       credentials: "include",
     });
-    if (response.status == 200) {
+    if (response.status === 200) {
       return true;
     }
     return false;

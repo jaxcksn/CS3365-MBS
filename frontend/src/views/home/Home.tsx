@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
-import "./App.css";
+import "./Home.css";
 import "@mantine/core/styles.css";
 import {
   AppShell,
-  Button,
   Container,
   TextInput,
   Title,
   useMantineTheme,
 } from "@mantine/core";
-import MovieCarousel from "./components/MovieCarousel";
-import { Movie, MovieCardProps } from "./components/MovieCard";
+import MovieCarousel from "../../components/movieCarousel/MovieCarousel";
+import type {
+  Movie,
+  MovieCardProps,
+} from "../../components/movieCarousel/MovieCard";
 import { useDebouncedCallback, useMediaQuery } from "@mantine/hooks";
-import setBodyColor, { BACKEND_URL } from "./main";
-import { useAuth } from "./providers/AuthContext";
-import Logo from "./assets/RaiderWatchLogo.svg?react";
-import MiniLogo from "./assets/MiniLogo.svg?react";
+import setBodyColor from "../../utils/helpers";
+import { useAuth } from "../../hooks/ProviderHooks";
+import { AppHeader } from "../../components/layout/AppHeader";
+import { BACKEND_URL } from "../../constants/Constants";
 
-function App() {
+function Home() {
   const [moviesCurrent, setMoviesCurrent] = useState<MovieCardProps[]>([]);
   const [currentLoading, setCurrentLoading] = useState(true);
   const [moviesUpcoming, setMoviesUpcoming] = useState<MovieCardProps[]>([]);
@@ -29,7 +31,6 @@ function App() {
   const theme = useMantineTheme();
   setBodyColor({ color: "var(--mantine-color-body)" });
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
-  const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -50,7 +51,7 @@ function App() {
           .map((movie) => {
             return {
               movie: movie,
-            } as MovieCardProps;
+            } satisfies MovieCardProps;
           })
       );
 
@@ -62,7 +63,7 @@ function App() {
           .map((movie) => {
             return {
               movie: movie,
-            } as MovieCardProps;
+            } satisfies MovieCardProps;
           })
       );
 
@@ -73,7 +74,7 @@ function App() {
     };
 
     fetchMovies();
-  }, []);
+  }, [auth]);
 
   const setValue = async (value: string) => {
     setInputValue(value);
@@ -97,39 +98,13 @@ function App() {
 
   return (
     <AppShell header={{ height: 60 }} style={{ width: "100%" }}>
-      <AppShell.Header pos={"relative"} className="header">
-        <div className="app-header">
-          <div className="logo">
-            {!isMobile && isMd ? (
-              <MiniLogo fill="white" height={40} width={40} />
-            ) : (
-              <Logo fill="white" width={200} />
-            )}
-          </div>
-          <div className="search">
-            {!isMobile && (
-              <TextInput
-                w="100%"
-                placeholder="Search for a movie"
-                leftSection={<i className="bi bi-search"></i>}
-                value={inputValue}
-                onChange={(event) => setValue(event.currentTarget.value)}
-              />
-            )}
-          </div>
-          <div className="actions">
-            <Button variant="subtle" color="white" onClick={auth.logout}>
-              Logout
-            </Button>
-          </div>
-        </div>
-      </AppShell.Header>
-      <Container fluid p={0} pb={isMobile ? "md" : 0} h={"100%"}>
+      <AppHeader showSearch inputValue={inputValue} setValue={setValue} />
+      <Container fluid p={0} pb={isMobile ? "md" : 0} h="100%">
         {isMobile && (
           <TextInput
             w="100%"
             placeholder="Search for a movie"
-            leftSection={<i className="bi bi-search"></i>}
+            leftSection={<i className="bi bi-search" />}
             value={inputValue}
             onChange={(event) => setValue(event.currentTarget.value)}
             size="md"
@@ -138,11 +113,11 @@ function App() {
             pb={0}
           />
         )}
-        <Title order={3} pl={"md"} pt={"sm"} pb={"sm"}>
+        <Title order={3} pl="md" pt="sm" pb="sm">
           Now Playing
         </Title>
         <MovieCarousel data={filteredCurrentMovies} loading={currentLoading} />
-        <Title order={3} pl={"md"} pt={"sm"} pb={"sm"}>
+        <Title order={3} pl="md" pt="sm" pb="sm">
           Upcoming
         </Title>
         <MovieCarousel
@@ -154,4 +129,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;

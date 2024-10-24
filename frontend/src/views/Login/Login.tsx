@@ -1,6 +1,4 @@
-/// <reference types="vite-plugin-svgr/client" />
-
-import { useAuth } from "../../providers/AuthContext";
+import { useAuth } from "../../hooks/ProviderHooks";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
@@ -15,10 +13,11 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import Logo from "../../assets/RaiderWatchLogo.svg?react";
-import "./Login.css";
-import setBodyColor from "../../main";
+import setBodyColor from "../../utils/helpers";
 import { useForm } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
+
+import "./Login.css";
 
 interface LoginFormInputs {
   username: string;
@@ -35,7 +34,7 @@ export default function Login() {
   });
 
   const onSubmit = (data: LoginFormInputs) => {
-    auth.login(data.username, data.password).then(() => {
+    auth?.login(data.username, data.password).then(() => {
       navigate("/");
     });
   };
@@ -62,8 +61,8 @@ export default function Login() {
           <div style={{ width: "50%" }}>
             <Logo
               fill="var(--mantine-color-myColor-filled)"
-              width={"100%"}
-              height={"auto"}
+              width="100%"
+              height="auto"
             />
           </div>
         </Group>
@@ -89,7 +88,7 @@ export default function Login() {
               type="password"
               key={form.key("password")}
               {...form.getInputProps("password")}
-              pb={"md"}
+              pb="md"
               size={isMobile ? "md" : "sm"}
             />
 
@@ -99,7 +98,7 @@ export default function Login() {
 
             <Group justify="flex-end">
               <Text>
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   className="link"
                   to="/signup"

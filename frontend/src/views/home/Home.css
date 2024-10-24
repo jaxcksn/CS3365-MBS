@@ -1,28 +1,3 @@
-:root {
-  --bodyColor: var(--mantine-color-body);
-}
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: var(--bodyColor) !important;
-  width: 100vw;
-}
-
-#root {
-  height: 100%;
-}
-
-.header {
-  background-color: var(--mantine-color);
-}
-
-.actions {
-  padding-right: var(--mantine-spacing-md);
-}
-
 .app-header {
   width: 100%;
   display: flex;

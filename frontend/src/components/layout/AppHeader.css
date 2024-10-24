@@ -1,0 +1,7 @@
+.header {
+  background-color: var(--mantine-color);
+}
+
+.actions {
+  padding-right: var(--mantine-spacing-md);
+}

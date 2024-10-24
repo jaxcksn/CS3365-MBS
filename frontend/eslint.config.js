@@ -20,6 +20,11 @@ export default tseslint.config(
   {
     extends: [],
     files: ["**/*.{ts,tsx}"],
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

@@ -1,19 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import apiService, { registerInformation } from "../services/apiService";
 
-interface AuthContextType {
-  accessToken: string | null;
-  isLoggedIn: boolean;
-  loading: boolean;
-  hasRefresh: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  register: (data: registerInformation) => Promise<number>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 import { ReactNode } from "react";
+import { AuthContext } from "../hooks/ProviderHooks";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -78,42 +67,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     apiService.logout(accessToken ?? ""); // Call the logout API, revoke refresh tokens, etc.
     setAccessToken(null);
     setHasRefresh(false);
     document.cookie =
       "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     setIsLoggedIn(false);
-  };
+  }, [accessToken]);
 
   const register = async (data: registerInformation) => {
     const result = await apiService.register(data);
     return result;
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        accessToken,
-        hasRefresh,
-        isLoggedIn,
-        loading,
-        login,
-        logout,
-        register,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const context = useMemo(
+    () => ({
+      accessToken,
+      isLoggedIn,
+      loading,
+      hasRefresh,
+      login,
+      logout,
+      register,
+    }),
+    [accessToken, isLoggedIn, loading, hasRefresh, logout]
   );
-};
 
-// Custom hook to use the AuthContext
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  return (
+    <AuthContext.Provider value={context}>{children}</AuthContext.Provider>
+  );
 };

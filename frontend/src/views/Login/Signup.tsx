@@ -12,17 +12,20 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../providers/AuthContext";
-import Logo from "../assets/RaiderWatchLogo.svg?react";
-import setBodyColor, { APP_MODE } from "../main";
-import { registerInformation } from "../services/apiService";
-import PhoneNumberInput from "../components/PhoneNumberInput";
+import { useAuth } from "../../hooks/ProviderHooks";
+import Logo from "../../assets/RaiderWatchLogo.svg?react";
+import setBodyColor from "../../utils/helpers";
+import { registerInformation } from "../../services/apiService";
+import PhoneNumberInput from "../../components/inputs/PhoneNumberInput";
 import { useForm } from "@mantine/form";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { z } from "zod";
 import validator from "validator";
-import ZipCodeInput from "../components/ZipCodeInput";
+import ZipCodeInput from "../../components/inputs/ZipCodeInput";
 import { useMediaQuery } from "@mantine/hooks";
+import { APP_MODE } from "../../constants/Constants";
+
+import "./Login.css";
 
 const states = [
   "AL",
@@ -144,8 +147,8 @@ export default function Signup() {
           <div style={{ width: "50%" }}>
             <Logo
               fill="var(--mantine-color-myColor-filled)"
-              width={"100%"}
-              height={"auto"}
+              width="100%"
+              height="auto"
             />
           </div>
         </Group>
@@ -158,7 +161,7 @@ export default function Signup() {
             onSubmit(data);
           })}
         >
-          <Flex gap={{ base: "sm", sm: "md" }} direction={"column"}>
+          <Flex gap={{ base: "sm", sm: "md" }} direction="column">
             <TextInput
               withAsterisk
               label="Email"
@@ -190,8 +193,8 @@ export default function Signup() {
               size={isMobile ? "md" : "sm"}
             />
             <Flex
-              w={"100%"}
-              pb={"md"}
+              w="100%"
+              pb="md"
               direction={{ base: "column", sm: "row" }}
               gap={{ base: "sm", sm: "md" }}
               justify="space-between"
@@ -207,7 +210,7 @@ export default function Signup() {
                 size={isMobile ? "md" : "sm"}
               />
               <Flex
-                direction={"row"}
+                direction="row"
                 gap={{ base: "sm", sm: "lg" }}
                 justify="space-between"
                 w={{ base: "100%", sm: "50%" }}
