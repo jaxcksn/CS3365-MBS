@@ -31,50 +31,44 @@ CREATE TABLE IF NOT EXISTS `Movie`(
     `poster_url` TEXT NOT NULL,
     PRIMARY KEY(`id`)
 );
-CREATE TABLE IF NOT EXISTS `Refresh`(
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `user` CHAR(36) NOT NULL,
-    `token` CHAR(255) NOT NULL,
-    `expires` TIMESTAMP NOT NULL,
-    `revoked` BOOLEAN DEFAULT FALSE,
-    `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY(`id`)
-);
+
 CREATE TABLE IF NOT EXISTS `Ticket`(
-    `id` CHAR(9) NOT NULL,
+    `id` CHAR(36) NOT NULL,
     `showing` CHAR(9) NOT NULL,
     `user` CHAR(36) NOT NULL,
-    `seats` INT NOT NULL,
+    `quantity` INT NOT NULL,
     `date` DATE NOT NULL,
     `time` VARCHAR(255) NOT NULL,
     `theater` CHAR(3) NOT NULL,
     `transaction` CHAR(36) NOT NULL,
     PRIMARY KEY(`id`)
 );
+
 CREATE TABLE IF NOT EXISTS `App`(
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `version` VARCHAR(255) NOT NULL,
     `name` VARCHAR(255) NOT NULL
 );
+
 CREATE TABLE IF NOT EXISTS `Transaction`(
     `id` CHAR(36) NOT NULL,
     `amount` DECIMAL(4, 2) NOT NULL,
     `timestamp` TIMESTAMP NOT NULL,
     `method` VARCHAR(255) NOT NULL,
+    `billing_address` TEXT NOT NULL, 
+    `was_successful` BOOLEAN NOT NULL,
     PRIMARY KEY(`id`)
 );
+
 CREATE TABLE IF NOT EXISTS `User`(
     `id` CHAR(36) NOT NULL,
     `email` VARCHAR(255) NOT NULL UNIQUE,
     `password` VARCHAR(255) NOT NULL,
-    `address` VARCHAR(255) NOT NULL,
-    `zipcode` CHAR(5) NOT NULL,
-    `city` VARCHAR(255) NOT NULL,
-    `state` CHAR(2) NOT NULL,
     `phone` VARCHAR(255) NOT NULL,
     `role` VARCHAR(255) NOT NULL,
     PRIMARY KEY(`id`)
 );
+
 CREATE TABLE IF NOT EXISTS `Theater`(
     `id` CHAR(3) NOT NULL,
     `name` VARCHAR(255) NOT NULL,
@@ -88,8 +82,6 @@ ALTER TABLE
     `Review` ADD CONSTRAINT `review_movie_foreign` FOREIGN KEY(`movie`) REFERENCES `Movie`(`id`) ON DELETE CASCADE;
 ALTER TABLE
     `Showing` ADD CONSTRAINT `showing_movie_foreign` FOREIGN KEY(`movie`) REFERENCES `Movie`(`id`) ON DELETE CASCADE;
-ALTER TABLE
-    `Refresh` ADD CONSTRAINT `refresh_user_foreign` FOREIGN KEY(`user`) REFERENCES `User`(`id`) ON DELETE CASCADE;
 ALTER TABLE
     `Ticket` ADD CONSTRAINT `ticket_theater_foreign` FOREIGN KEY(`theater`) REFERENCES `Theater`(`id`);
 ALTER TABLE
@@ -108,38 +100,26 @@ INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `po
 INSERT INTO `Movie` (`id`, `description`, `runtime`, `cast`, `release_date`, `poster_url`, `title`) VALUES ('Nz5lSa46Q','After a shipwreck, an intelligent robot called Roz is stranded on an uninhabited island. To survive the harsh environment, Roz bonds with the island\'s animals and cares for an orphaned baby goose.',139,'Lupita Nyong\'o, Pedro Pascal, Kit Connor',DATE('2024-09-27'),'https://m.media-amazon.com/images/M/MV5BZjM2M2E3YzAtZDJjYy00MDhkLThiYmItOGZhNzQ3NTgyZmI0XkEyXkFqcGc@._V1_FMjpg_UY5000_.jpg','The Wild Robot');
 
 
-INSERT INTO User(id, email, password, address, zipcode, city, state, phone, role) VALUES (
+INSERT INTO User(id, email, password, phone, role) VALUES (
     'acf3fecb-8d9f-4dd1-afb4-2cd0f094040a',
     'email@email.com',
     '$2b$12$7TJU1.A70KoOVXuBno40MeHARiIp6b8iEpu15a.2kl8AcKfGDlu.2',	
-    '123 Ave Q',
-    '77915',
-    'Lubbock',
-    'TX',
     '555-123-4567',
     'user'
 );
 
-INSERT INTO User(id, email, password, address, zipcode, city, state, phone, role) VALUES (
+INSERT INTO User(id, email, password, phone, role) VALUES (
     'b1d0c6a7-e928-492c-9fa5-689b1483ed11',
     'admin@email.com',
     '$2b$12$PuTOpuSrxuiKw9hFzm70fO60jZ7Q1fxPeys0EkqH78JpBsRLBeSQO',	
-    '123 Ave Q',
-    '77915',
-    'Lubbock',
-    'TX',
     '555-123-4566',
     'admin'
 );
 
-INSERT INTO `User`(id, email, password, address, zipcode, city, state, phone, role) VALUES (
+INSERT INTO `User`(id, email, password, phone, role) VALUES (
     'a3c7317b-4233-435c-9b75-5ab4329315ee',
     'dummy@email.com',
     '$2b$12$7TJU1.A70KoOVXuBno40MeHARiIp6b8iEpu15a.2kl8AcKfGDlu.2',	
-    '123 Ave Q',
-    '77915',
-    'Lubbock',
-    'TX',
     '555-123-4569',
     'user'
 );

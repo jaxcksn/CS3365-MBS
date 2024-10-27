@@ -24,7 +24,7 @@ interface LoginFormInputs {
   password: string;
 }
 
-export default function Login() {
+function Login() {
   const form = useForm({
     mode: "controlled",
     initialValues: {
@@ -115,3 +115,5 @@ export default function Login() {
     </div>
   );
 }
+
+export default Login;

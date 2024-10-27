@@ -1,12 +1,15 @@
 from contextlib import asynccontextmanager
+import uuid
+from numpy import short
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 from fastapi import HTTPException
 import os
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from nanoid import generate
 
 # -------------------------- Module Level Variables -------------------------- #
 load_dotenv()
@@ -93,3 +96,20 @@ class DB:
             except Exception as err:
                 await db.rollback()
                 raise HTTPException(status_code=500, detail=str(err))
+
+
+# ------------------ Helper Methods for Database Operations ------------------ #
+
+IdType = Literal["short", "long"]
+
+
+def newId(type: IdType = "long") -> str:
+    """
+    Generates a new ID.
+
+    :param type: If "short", a 9-character alphanumeric ID is generated. Otherwise, a UUID is generated. Movie and Showing both use the "short" type.
+    """
+    if type == "short":
+        return generate(size=9)
+    else:
+        return str(uuid.uuid4())

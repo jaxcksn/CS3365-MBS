@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from ..util import DB
+from ..util import DB, newId
 from ..dependencies import auth, admin
 
 router = APIRouter()
+
 
 # ---------------------------------------------------------------------------- #
 #                                    Models                                    #
@@ -13,6 +14,9 @@ router = APIRouter()
 # ---------------------------------------------------------------------------- #
 #                                    Routes                                    #
 # ---------------------------------------------------------------------------- #
+
+# HINT: The Movie and Showing database uses a URL safe short ID instead of a UUID, so you need
+# to use newId("short") to generate a new ID for a movie or showing.
 
 
 @router.get("/movies")

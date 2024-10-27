@@ -1,7 +1,7 @@
 /// <reference types="vite-plugin-svgr/client" />
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import Home from "./views/home/Home.tsx";
+import Home from "./views/home/Home";
 import "./index.css";
 import {
   createBrowserRouter,
@@ -15,13 +15,13 @@ import {
   MantineColorsTuple,
   MantineProvider,
 } from "@mantine/core";
-import Movie from "./views/movie/Movie.tsx";
 import Login from "./views/login/Login.tsx";
-import Signup from "./views/login/Signup.tsx";
-import { AuthProvider } from "./contexts/AuthContext.tsx";
-import { useAuth } from "./hooks/ProviderHooks.ts";
-import { MBSProvider } from "./contexts/MBSContext.tsx";
-import { AppHeader } from "./components/layout/AppHeader.tsx";
+import Signup from "./views/signup/Signup";
+import Movie from "./views/movie/Movie";
+import { AuthProvider } from "./contexts/AuthContext";
+import { useAuth } from "./hooks/ProviderHooks";
+import { MBSProvider } from "./contexts/MBSContext";
+import { AppHeader } from "./components/layout/AppHeader";
 
 export const RootView = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -60,7 +60,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <div />;
   }
 
-  if (auth?.isLoggedIn) {
+  if (!auth?.isLoggedIn) {
     // If the user is not authenticated, redirect to login page and save the current location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

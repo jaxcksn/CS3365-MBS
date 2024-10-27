@@ -4,10 +4,6 @@ export interface registerInformation {
   email: string;
   password: string;
   phone_number: string;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
 }
 
 class ApiService {

@@ -6,7 +6,7 @@ import bcrypt
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 import jwt
 from pydantic import BaseModel
-from ..util import DB
+from ..util import DB, newId
 from ..dependencies import auth, generate_access_token, generate_refresh_token
 
 router = APIRouter()
@@ -20,10 +20,6 @@ class RegisterInfo(BaseModel):
     email: str
     password: str
     phone_number: str
-    address: str
-    city: str
-    state: str
-    zip: str
 
 
 class LoginInfo(BaseModel):
@@ -43,17 +39,13 @@ async def register(
 ):
     hash = bcrypt.hashpw(info.password.encode("utf-8"), bcrypt.gensalt())
     await DB.execute(
-        """INSERT INTO `User` (`id`, `email`, `password`, `phone`, `address`, `city`, `state`, `zipcode`, `role`) 
-        VALUES (:id, :email, :password, :phone_number, :address, :city, :state, :zip, 'user')""",
+        """INSERT INTO `User` (`id`, `email`, `password`, `phone`, `role`) 
+        VALUES (:id, :email, :password, :phone_number, 'user')""",
         {
-            "id": str(uuid.uuid4()),
+            "id": newId(),
             "email": info.email,
             "password": hash,
             "phone_number": info.phone_number,
-            "address": info.address,
-            "city": info.city,
-            "state": info.state,
-            "zip": info.zip,
         },
     )
     response.status_code = status.HTTP_201_CREATED

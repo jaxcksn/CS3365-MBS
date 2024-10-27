@@ -10,8 +10,6 @@ export interface InProgressBooking {
 
 export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
   const [ipBooking, setIpBooking] = useState<InProgressBooking | null>(null);
-  const context = useMemo(() => ({ ipBooking, updateIpBooking }), [ipBooking]);
-
   const updateIpBooking = (ip: InProgressBooking) => {
     setIpBooking((prev) => {
       if (prev) {
@@ -24,6 +22,8 @@ export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
   };
+
+  const context = useMemo(() => ({ ipBooking, updateIpBooking }), [ipBooking]);
 
   return <MBSContext.Provider value={context}>{children}</MBSContext.Provider>;
 };
