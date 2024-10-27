@@ -6,7 +6,7 @@ info:
   x-logo:
     url: "https://github.com/jaxcksn/jaxcksn/blob/main/files/ttu_cs_light.png?raw=true"
     backgroundColor: "#FFFFFF"
-    altText: "Texas Tech Department of Computer Science"
+    altText: Texas Tech Department of Computer Science
   version: 0.0.1
   summary: MBS API Contract
   description: This defines all the endpoints and routes that should exist in the API. This is meant to be a rough guide and may change as needed.
@@ -481,13 +481,15 @@ paths:
                   - cast
                   - release_date
                   - poster_url
+                  - reviews
                   - did_review
+                  - showing
                 properties:
                   id:
                     type: string
                     x-stoplight:
                       id: pmhiq5ibxr3w4
-                    format: uuid
+                    format: short-id
                   title:
                     type: string
                     x-stoplight:
@@ -516,6 +518,7 @@ paths:
                     x-stoplight:
                       id: ivptoptwsua4e
                     format: date
+                    description: This is the day the movie came out. Not when showings started.
                   poster_url:
                     type: string
                     x-stoplight:
@@ -533,7 +536,7 @@ paths:
                       required:
                         - published
                         - rating
-                        - content
+                        - text
                       properties:
                         published:
                           type: string
@@ -544,7 +547,7 @@ paths:
                           type: number
                           x-stoplight:
                             id: h5z9v7xyev6ko
-                        content:
+                        text:
                           type: string
                           x-stoplight:
                             id: 2g99w8ba96whi
@@ -553,70 +556,87 @@ paths:
                     x-stoplight:
                       id: tzv0avd9nh10e
                     description: Value is true if the user has already submited a review.
+                  showing:
+                    type: object
+                    x-stoplight:
+                      id: ale20avtjvq1z
+                    required:
+                      - start_date
+                      - end_date
+                      - show_times
+                      - showing_id
+                      - price
+                    properties:
+                      start_date:
+                        type: string
+                        x-stoplight:
+                          id: 54jalcgrfja2h
+                        format: date
+                      end_date:
+                        type: string
+                        x-stoplight:
+                          id: f774s6xbcbshx
+                        format: date
+                      show_times:
+                        type: array
+                        x-stoplight:
+                          id: m3z689gd1iz8t
+                        items:
+                          x-stoplight:
+                            id: 4iml3vhcii7sp
+                          type: string
+                      showing_id:
+                        type: string
+                        x-stoplight:
+                          id: xmhnvjhpjayet
+                        format: short-id
+                      price:
+                        type: number
+                        x-stoplight:
+                          id: 1dmpoxq4meh2u
       operationId: get-movie
       x-stoplight:
         id: hgbeeej62dj2n
       security:
         - BEARER: []
-      description: Gets the information for a single movie
+      description: Gets the information for a single movie and it's associated showing.
     parameters:
       - schema:
           type: string
         name: id
         in: path
         required: true
-        description: The ID of the movie
-  "/movie/{id}/showings":
-    parameters:
-      - schema:
-          type: string
-        name: id
-        in: path
-        required: true
-        description: The ID of the movie
-    get:
-      summary: Fetch Showing Information
+  /movie/review:
+    post:
+      summary: Create Movie Review
       tags: []
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - times
-                  - showings_end
-                  - price
-                properties:
-                  times:
-                    type: array
-                    x-stoplight:
-                      id: nfez1a6aurtmh
-                    description: Array of times that the movie is showing
-                    items:
-                      x-stoplight:
-                        id: gng75wzgcz8xz
-                      type: string
-                  showings_end:
-                    type: string
-                    x-stoplight:
-                      id: dqbgdizq308uf
-                    format: date
-                    description: Used to determine how far the user should be allowed to book a movie.
-                  price:
-                    type: number
-                    x-stoplight:
-                      id: zeacoekw34ryb
-                    description: Price of a single ticket
-        "400":
-          description: "Bad Request: Will also be throw if the movie does not have any showings."
-      operationId: get-movie-showings
+      responses: {}
+      operationId: post-movie-review
       x-stoplight:
-        id: qop0iq57cmaoc
-      description: Fetches all the available booking times and dates for a given movie.
-      security:
-        - BEARER: []
+        id: xk8o28pl7r4pa
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                movie_id:
+                  type: string
+                  x-stoplight:
+                    id: gj7o6pae5h9cw
+                  format: short-id
+                content:
+                  type: string
+                  x-stoplight:
+                    id: rge4tvxfs829y
+                  maxLength: 255
+                rating:
+                  type: number
+                  x-stoplight:
+                    id: 7bqv66flv9mvv
+                  minimum: 0
+                  maximum: 5
+                  format: float
   /movies:
     get:
       summary: Fetch All Movies
@@ -866,6 +886,51 @@ paths:
       security:
         - BEARER: []
       description: Gets all the showings for an admin
+  /health:
+    get:
+      summary: Fetch Service Health
+      tags: []
+      responses:
+        "200":
+          description: "OK - This is the default status, even if one of the services is unhealthy, it should report a 200 status for the request unless the error specifically happens within the health check request."
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - database
+                  - api
+                properties:
+                  database:
+                    type: boolean
+                    x-stoplight:
+                      id: me4dc010vw5eb
+                    description: Is the backend connected to the database?
+                  api:
+                    type: boolean
+                    x-stoplight:
+                      id: gk2jygmk9bmgy
+                    description: Is the API processing requests properly?
+          headers:
+            cache-control:
+              schema:
+                type: string
+              description: no-cache
+        5XX:
+          description: This will also indicate to the frontend that something is wrong. It will send the error message if there is any.
+          headers:
+            cache-control:
+              schema:
+                type: string
+              description: no-cache
+      operationId: health-check
+      x-stoplight:
+        id: 8snupk2o025p5
+      description: |
+        An endpoint used to check that the API is healthy and running properly. Almost like a ping request.
+      x-internal: true
+      parameters: []
+      security: []
 components:
   schemas: {}
   securitySchemes:
