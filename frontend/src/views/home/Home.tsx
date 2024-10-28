@@ -15,9 +15,10 @@ import type {
 } from "../../components/movieCarousel/MovieCard";
 import { useDebouncedCallback, useMediaQuery } from "@mantine/hooks";
 import setBodyColor from "../../utils/helpers";
-import { useAuth } from "../../hooks/ProviderHooks";
+import { useAuth, useMBS } from "../../hooks/ProviderHooks";
 import { AppHeader } from "../../components/layout/AppHeader";
 import { BACKEND_URL } from "../../constants/Constants";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [moviesCurrent, setMoviesCurrent] = useState<MovieCardProps[]>([]);
@@ -31,6 +32,7 @@ function Home() {
   const theme = useMantineTheme();
   setBodyColor({ color: "var(--mantine-color-body)" });
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -67,10 +69,8 @@ function Home() {
           })
       );
 
-      setTimeout(() => {
-        setCurrentLoading(false);
-        setUpcomingLoading(false);
-      }, 4000);
+      setCurrentLoading(false);
+      setUpcomingLoading(false);
     };
 
     fetchMovies();
@@ -96,6 +96,33 @@ function Home() {
     a.movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const mbsContext = useMBS();
+
+  const handleMovieClick = (movieId: string, current: boolean) => {
+    let movie: MovieCardProps | undefined;
+    if (current) {
+      movie = moviesCurrent.find((movie) => movie.movie.id === movieId);
+    } else {
+      movie = moviesUpcoming.find((movie) => movie.movie.id === movieId);
+    }
+
+    if (!movie) {
+      return;
+    } else {
+      mbsContext.updateIpBooking({
+        movieId: movie.movie.id,
+        movieName: movie.movie.title,
+        theater: "LUB",
+        time: "10:00AM",
+        date: "2024/10/30",
+        quantity: 2,
+        price: 20,
+      });
+    }
+
+    navigate("/checkout");
+  };
+
   return (
     <AppShell header={{ height: 60 }} style={{ width: "100%" }}>
       <AppHeader showSearch inputValue={inputValue} setValue={setValue} />
@@ -116,13 +143,18 @@ function Home() {
         <Title order={3} pl="md" pt="sm" pb="sm">
           Now Playing
         </Title>
-        <MovieCarousel data={filteredCurrentMovies} loading={currentLoading} />
+        <MovieCarousel
+          data={filteredCurrentMovies}
+          loading={currentLoading}
+          onMovieClick={(id) => handleMovieClick(id, true)}
+        />
         <Title order={3} pl="md" pt="sm" pb="sm">
           Upcoming
         </Title>
         <MovieCarousel
           data={filteredUpcomingMovies}
           loading={upcomingLoading}
+          onMovieClick={(id) => handleMovieClick(id, false)}
         />
       </Container>
     </AppShell>

@@ -11,6 +11,7 @@ export interface Movie {
 export interface MovieCardProps {
   movie: Movie;
   width?: number;
+  onClick?: () => void;
 }
 
 export default function MovieCard(props: MovieCardProps) {
@@ -22,6 +23,8 @@ export default function MovieCard(props: MovieCardProps) {
       className="movie-card"
       shadow="sm"
       radius="md"
+      withBorder
+      onClick={props.onClick}
       style={{
         backgroundImage: `url(${
           props.movie.poster_url ?? "https://source.unsplash.com/random/414x620"

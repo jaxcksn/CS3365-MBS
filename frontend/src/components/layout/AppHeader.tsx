@@ -22,7 +22,7 @@ export const AppHeader = (props: AppHeaderProps) => {
     <AppShell.Header pos="relative" className="header">
       <div className="app-header">
         <div className="logo">
-          {!isMobile && isMd ? (
+          {!isMobile && isMd && props.showSearch ? (
             <MiniLogo fill="white" height={40} width={40} />
           ) : (
             <Logo fill="white" width={200} />

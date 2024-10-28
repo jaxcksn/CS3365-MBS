@@ -9,6 +9,7 @@ import {
   Title,
   Flex,
   useMantineTheme,
+  Checkbox,
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/ProviderHooks";
@@ -24,6 +25,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { APP_MODE } from "../../constants/Constants";
 
 import "../login/Login.css";
+import { useState } from "react";
 
 export default function Signup() {
   const schema = z.object({
@@ -49,6 +51,7 @@ export default function Signup() {
       password: "",
       phone_number: "",
     },
+    validateInputOnBlur: true,
     validate: zodResolver(schema),
   });
   const onSubmit = (data: registerInformation) => {
@@ -58,6 +61,8 @@ export default function Signup() {
       }
     });
   };
+
+  const [didAgree, setDidAgree] = useState(false);
 
   const auth = useAuth();
   const navigate = useNavigate();
@@ -96,7 +101,7 @@ export default function Signup() {
             onSubmit(data);
           })}
         >
-          <Flex gap={{ base: "sm", sm: "md" }} direction="column">
+          <Flex gap="xs" direction="column">
             <TextInput
               withAsterisk
               label="Email"
@@ -118,7 +123,20 @@ export default function Signup() {
               {...form.getInputProps("phone_number")}
               size={isMobile ? "md" : "sm"}
             />
-            <Button fullWidth variant="filled" type="submit">
+            <Checkbox
+              label="I agree to follow the Terms of Service"
+              checked={didAgree}
+              onChange={(e) => {
+                setDidAgree(e.currentTarget.checked);
+              }}
+            />
+            <Button
+              fullWidth
+              variant="filled"
+              type="submit"
+              mt="sm"
+              disabled={!didAgree}
+            >
               Login
             </Button>
 

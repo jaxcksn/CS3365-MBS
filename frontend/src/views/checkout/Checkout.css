@@ -1,0 +1,50 @@
+.checkout-form {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  width: 100%;
+  margin: auto;
+  column-gap: var(--mantine-spacing-xs);
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: $mantine-breakpoint-xs) {
+  .checkout-form .take-full,
+  .checkout-form .take-2-3,
+  .checkout-form .take-1-3,
+  .checkout-form .take-3,
+  .checkout-form .take-2,
+  .checkout-form .take-1 {
+    grid-column: 1 / -1; /* Full-width on small screens */
+  }
+
+  .checkout-form .split {
+    grid-column: span 3 !important;
+  }
+}
+
+/* Grid spans for larger screens */
+@media (min-width: $mantine-breakpoint-xs) {
+  .checkout-form .take-full {
+    grid-column: 1 / -1;
+  }
+
+  .checkout-form .take-3 {
+    grid-column: span 3; /* Takes 3/6 or 1/2 of the row */
+  }
+
+  .checkout-form .take-2 {
+    grid-column: span 2; /* Takes 2/6 or 1/3 of the row */
+  }
+
+  .checkout-form .take-1 {
+    grid-column: span 1; /* Takes 1/6 of the row */
+  }
+
+  .checkout-form .take-2-3 {
+    grid-column: span 4; /* Takes 4/6 or 2/3 of the row */
+  }
+
+  .checkout-form .take-1-3 {
+    grid-column: span 2; /* Takes 2/6 or 1/3 of the row */
+  }
+}
