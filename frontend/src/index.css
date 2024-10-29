@@ -3,6 +3,7 @@
 
 :root {
   --bodyColor: var(--mantine-color-body);
+  --input-fz: 1rem;
 }
 
 html,

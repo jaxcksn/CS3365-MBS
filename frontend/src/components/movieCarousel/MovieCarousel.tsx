@@ -6,7 +6,9 @@ import { Navigation } from "swiper/modules";
 export interface MovieCarouselProps {
   data: MovieCardProps[];
   loading: boolean;
+  onMovieClick?: (movieId: string) => void;
 }
+
 import "swiper/css";
 import "swiper/css/navigation";
 import { useMediaQuery, useViewportSize } from "@mantine/hooks";
@@ -15,7 +17,11 @@ import "./movieCarousel.css";
 import { useEffect, useRef } from "react";
 const posterAspectRatio = 414 / 620;
 
-export default function MovieCarousel({ data, loading }: MovieCarouselProps) {
+export default function MovieCarousel({
+  data,
+  loading,
+  onMovieClick,
+}: MovieCarouselProps) {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const swiperRef = useRef<any>(null);
@@ -79,7 +85,13 @@ export default function MovieCarousel({ data, loading }: MovieCarouselProps) {
                   }
             }
           >
-            <MovieCard {...item} width={posterSize} />
+            <MovieCard
+              {...item}
+              width={posterSize}
+              onClick={() => {
+                if (onMovieClick) onMovieClick(item.movie.id);
+              }}
+            />
           </SwiperSlide>
         ));
   };

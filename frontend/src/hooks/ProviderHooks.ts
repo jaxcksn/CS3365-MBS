@@ -7,6 +7,8 @@ import { registerInformation } from "../services/apiService";
 export interface MBSContextType {
   ipBooking: InProgressBooking | null;
   updateIpBooking: (ip: InProgressBooking) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 export const MBSContext = createContext<MBSContextType | undefined>(undefined);
