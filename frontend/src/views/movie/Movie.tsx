@@ -5,5 +5,5 @@ export default function Movie() {
   // const [movieId, setMovieId] = useState("");
   const { id } = useParams();
 
-  return <div>Movie {id}</div>;
+  return <div>Movie {id} number</div>;
 }

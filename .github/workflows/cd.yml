@@ -16,22 +16,21 @@ jobs:
         id: frontend-files-changed
         uses: tj-actions/changed-files@v45
         with:
-          files: frontend/**, workflows/cd.yml
+          files: frontend/**
           files_ignore: frontend/README.md, frontend/publish.sh
 
-      - name: Get changed files in the backend folder
+      - name: Get changed files in the frontend folder
         id: backend-files-changed
         uses: tj-actions/changed-files@v45
         with:
-          files: backend/**, workflows/cd.yml
+          files: backend/**
           files_ignore: backend/README.md, backend/publish.sh
 
-      - name: Check for database changes
+      - name: Get changed files in the db folder
         id: db-files-changed
         uses: tj-actions/changed-files@v45
         with:
-          files: db/migrations/**, workflows/cd.yml
-          files_ignore: db/migrations/flyway.conf db/old.init.sql
+          files: db/**
 
       - name: Set up Docker Buildx
         if: steps.frontend-files-changed.outputs.any_changed == 'true' || steps.backend-files-changed.outputs.any_changed == 'true'
@@ -60,6 +59,6 @@ jobs:
           docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-backend:latest ./backend --push
 
       - name: Deploy to Staging
-        if: steps.frontend-files-changed.outputs.any_changed == 'true' || steps.backend-files-changed.outputs.any_changed == 'true'
+        if: steps.frontend-files-changed.outputs.any_changed == 'true' || steps.backend-files-changed.outputs.any_changed == 'true' || steps.db-files-changed.outputs.any_changed == 'true'
         run: |
           curl -X POST ${{secrets.SERVER_IP}}?token=${{secrets.SERVER_TOKEN}}

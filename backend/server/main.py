@@ -58,4 +58,4 @@ def protected_route(user_id: str = Depends(auth)):
 
 @app.get("/test/admin")
 def admin_route(user_id: str = Depends(admin)):
-    return {"message": "This is an admin route! You are an admin."}
+    return {"message": "This is an admin route!!!! You are an admin."}
