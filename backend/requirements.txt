@@ -3,6 +3,7 @@ sqlalchemy
 asyncmy
 greenlet
 nanoid
+numpy
 python-dotenv==1.0.1
 cryptography==43.0.1
 bcrypt==4.2.0
