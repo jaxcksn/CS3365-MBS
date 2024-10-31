@@ -84,7 +84,7 @@ jobs:
 
   validate-build:
     runs-on: ubuntu-latest
-    needs: [build-frontend, build-backend]
+    needs: [frontend-build, backend-build]
     if: ${{ failure() }} # Only run this job if a failure is detected in the previous jobs
 
     steps:
