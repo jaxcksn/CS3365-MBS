@@ -13,6 +13,7 @@
     "@mantine/core": "^7.13.2",
     "@mantine/form": "^7.13.2",
     "@mantine/hooks": "^7.13.2",
+    "@mantine/notifications": "^7.13.4",
     "credit-card-type": "^10.0.1",
     "mantine-form-zod-resolver": "^1.1.0",
     "react": "^18.3.1",

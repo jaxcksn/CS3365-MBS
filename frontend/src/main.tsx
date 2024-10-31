@@ -17,12 +17,15 @@ import {
 } from "@mantine/core";
 import Login from "./views/login/Login.tsx";
 import Signup from "./views/signup/Signup.tsx";
-import { AuthProvider } from "./contexts/AuthContext.tsx";
 import { useAuth } from "./hooks/ProviderHooks.ts";
 import { MBSProvider } from "./contexts/MBSContext.tsx";
 import { AppHeader } from "./components/layout/AppHeader.tsx";
 import { Checkout } from "./views/checkout/Checkout.tsx";
 import Movie from "./views/movie/Movie.tsx";
+import { AuthProvider } from "./contexts/AuthContext.tsx";
+
+import "@mantine/notifications/styles.css";
+import { Notifications } from "@mantine/notifications";
 
 export const RootView = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -41,14 +44,14 @@ export const RedirectIfAuthenticated = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { accessToken, loading } = useAuth();
+  const { isLoggedIn, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
     return <div />;
   }
 
-  if (accessToken) {
+  if (isLoggedIn) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
@@ -145,6 +148,7 @@ createRoot(document.getElementById("root")!).render(
     <AuthProvider>
       <MantineProvider theme={theme} defaultColorScheme="light">
         <MBSProvider>
+          <Notifications />
           <RouterProvider router={router} />
         </MBSProvider>
       </MantineProvider>

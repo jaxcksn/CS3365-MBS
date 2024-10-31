@@ -1,64 +1,184 @@
-import { BACKEND_URL } from "../constants/Constants";
-
-export interface registerInformation {
-  email: string;
-  password: string;
-  phone_number: string;
-}
+import { APP_MODE, BACKEND_URL } from "../constants/Constants";
+import axios, { AxiosInstance } from "axios";
+import {
+  AdminCreateShowingRequest,
+  AdminShowing,
+  AdminUpdateShowingRequest,
+  Booking,
+  CreateBookingRequest,
+  CreateBookingResponse,
+  CreateMovieReviewRequest,
+  LoginResponse,
+  Movie,
+  MovieInformation,
+  RegisterRequest,
+  Ticket,
+} from "../types/api.model";
+import { notifications } from "@mantine/notifications";
 
 class ApiService {
-  public async login(email: string, password: string) {
-    const response = await fetch(BACKEND_URL + "/user/login", {
-      method: "POST",
+  private api: AxiosInstance;
+  private accessToken: string | null = null;
+
+  public constructor() {
+    this.api = axios.create({
+      baseURL: BACKEND_URL,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username: email, password }),
-      credentials: "include",
+      withCredentials: true,
     });
-    return response.json();
+
+    this.api.interceptors.request.use(
+      (config) => {
+        if (this.accessToken && !config.skipAuth) {
+          config.headers.Authorization = `Bearer ${this.accessToken}`;
+        }
+        return config;
+      },
+      (error) => {
+        Promise.reject(error);
+      }
+    );
+
+    this.api.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        if (APP_MODE === "DEV") {
+          notifications.show({
+            title: `DEBUG: Request to ${error.config.url} failed.`,
+            message: `Error ${error.status}: ${error.response?.data.detail || "An error occurred"}`,
+            color: "red",
+            autoClose: 5000,
+            withBorder: true,
+          });
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
-  public async register(data: registerInformation) {
-    const response = await fetch(BACKEND_URL + "/user/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  public setAccessToken(token: string | null): void {
+    this.accessToken = token;
+  }
+
+  // SECTION Authentication Calls
+
+  public async login(email: string, password: string): Promise<LoginResponse> {
+    const response = await this.api.post<LoginResponse>(
+      "/user/login",
+      {
+        email,
+        password,
       },
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
+      {
+        withCredentials: true,
+        skipAuth: true,
+      }
+    );
+
+    return {
+      access_token: response.data.access_token,
+      expires: new Date(response.data.expires),
+    };
+  }
+
+  public async register(params: RegisterRequest): Promise<number> {
+    const response = await this.api.post("/user/register", params);
     return response.status;
   }
 
-  public async refreshToken() {
-    const response = await fetch(BACKEND_URL + "/user/refresh", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: "{}",
-      credentials: "include",
-    });
-
-    return response.json();
+  public async refresh(): Promise<LoginResponse> {
+    const response = await this.api.post<LoginResponse>(
+      "/user/refresh",
+      {},
+      {
+        skipAuth: true,
+      }
+    );
+    return response.data;
   }
 
-  public async logout(accessToken: string) {
-    const response = await fetch(BACKEND_URL + "/user/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: "{}",
-      credentials: "include",
-    });
-    if (response.status === 200) {
-      return true;
-    }
-    return false;
+  public async logout(): Promise<void> {
+    await this.api.post("/user/logout", {});
   }
+
+  // !SECTION
+  // SECTION Fetch Calls
+
+  public async getMovies(): Promise<Movie[]> {
+    const response = await this.api.get<Movie[]>("/movies", {});
+    return response.data;
+  }
+
+  public async getMovie(id: string): Promise<MovieInformation> {
+    const response = await this.api.get<MovieInformation>(`/movie/${id}`, {});
+    return response.data;
+  }
+
+  public async getUserBookings(): Promise<Ticket[]> {
+    const response = await this.api.get<Ticket[]>("/user/bookings", {});
+    return response.data;
+  }
+
+  public async getBooking(id: string): Promise<Booking> {
+    const response = await this.api.get<Booking>(`/booking`, {
+      params: {
+        id,
+      },
+    });
+    return response.data;
+  }
+
+  public async adminGetShowings(): Promise<AdminShowing[]> {
+    const response = await this.api.get<AdminShowing[]>("/admin/showings", {});
+    return response.data;
+  }
+
+  // !SECTION
+  // SECTION Modifying Calls
+
+  public async createBooking(
+    params: CreateBookingRequest
+  ): Promise<CreateBookingResponse> {
+    const response = await this.api.post<CreateBookingResponse>("/booking", {
+      ...params,
+      transaction_id: "test",
+    });
+    return response.data;
+  }
+
+  public async createMovieReview(
+    params: CreateMovieReviewRequest
+  ): Promise<void> {
+    await this.api.post("/movie/review", params);
+  }
+
+  public async adminCreateShowing(
+    params: AdminCreateShowingRequest
+  ): Promise<void> {
+    await this.api.post("/admin/showing", params);
+  }
+
+  public async adminDeleteShowing(id: string): Promise<void> {
+    await this.api.delete(`/admin/showing`, {
+      params: {
+        id,
+      },
+    });
+  }
+
+  public async adminUpdateShowing(
+    params: AdminUpdateShowingRequest
+  ): Promise<void> {
+    await this.api.put(`/admin/showing`, params, {
+      params: {
+        id: params.id,
+      },
+    });
+  }
+
+  // !SECTION
 }
 
 export default new ApiService();

@@ -15,7 +15,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/ProviderHooks";
 import Logo from "../../assets/RaiderWatchLogo.svg?react";
 import setBodyColor from "../../utils/helpers";
-import { registerInformation } from "../../services/apiService";
 import PhoneNumberInput from "../../components/inputs/PhoneNumberInput";
 import { useForm } from "@mantine/form";
 import { zodResolver } from "mantine-form-zod-resolver";
@@ -26,6 +25,8 @@ import { APP_MODE } from "../../constants/Constants";
 
 import "../login/Login.css";
 import { useState } from "react";
+import { RegisterRequest } from "../../types/api.model";
+import apiService from "../../services/apiService";
 
 export default function Signup() {
   const schema = z.object({
@@ -54,18 +55,28 @@ export default function Signup() {
     validateInputOnBlur: true,
     validate: zodResolver(schema),
   });
-  const onSubmit = (data: registerInformation) => {
-    auth.register(data).then((status) => {
-      if (status === 201 || status === 200) {
-        navigate("/");
-      }
-    });
-  };
-
-  const [didAgree, setDidAgree] = useState(false);
 
   const auth = useAuth();
   const navigate = useNavigate();
+
+  const onSubmit = async (data: RegisterRequest) => {
+    try {
+      const registerStatus = await apiService.register({
+        email: data.email,
+        password: data.password,
+        phone_number: data.phone_number,
+      });
+
+      if (registerStatus === 201 || registerStatus === 200) {
+        await auth.login(data.email, data.password);
+        navigate("/");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const [didAgree, setDidAgree] = useState(false);
 
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);

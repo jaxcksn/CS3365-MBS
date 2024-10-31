@@ -23,7 +23,7 @@ class RegisterInfo(BaseModel):
 
 
 class LoginInfo(BaseModel):
-    username: str
+    email: str
     password: str
 
 
@@ -59,7 +59,7 @@ async def login(
 ):
     result = await DB.queryOne(
         "SELECT id, password FROM `User` WHERE email=:username",
-        {"username": body.username},
+        {"username": body.email},
     )
     if not result:
         raise HTTPException(status_code=404, detail="User not found")
@@ -89,7 +89,7 @@ def refresh(
     refresh_token: Annotated[str | None, Cookie()] = None,
 ):
     if not refresh_token:
-        raise HTTPException(status_code=401, detail="No refresh token provided")
+        raise HTTPException(status_code=400, detail="No refresh token provided")
     try:
         payload = jwt.decode(
             refresh_token, os.getenv("JWT_SECRET"), algorithms=["HS256"]
@@ -109,17 +109,14 @@ def refresh(
             "expires": datetime.datetime.fromtimestamp(access[1]),
         }
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Refresh token has expired")
+        raise HTTPException(status_code=400, detail="Refresh token has expired")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise HTTPException(status_code=400, detail="Invalid refresh token")
     except Exception as err:
         raise HTTPException(status_code=500, detail=str(err))
 
 
 @router.post("/user/logout")
-def logout(response: Response, user_id: str = Depends(auth)):
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    else:
-        response.delete_cookie(key="refresh_token")
-        return {"message": "User logged out successfully"}
+def logout(response: Response):
+    response.delete_cookie(key="refresh_token")
+    return {"message": "User logged out successfully"}

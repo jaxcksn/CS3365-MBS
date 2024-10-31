@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import apiService, { registerInformation } from "../services/apiService";
+import apiService from "../services/apiService";
 
 import { ReactNode } from "react";
 import { AuthContext } from "../hooks/ProviderHooks";
@@ -8,90 +8,109 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+const noRefreshPaths = new Set(["/login", "/signup"]);
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [expires, setExpires] = useState<Date | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
-  const [hasRefresh, setHasRefresh] = useState(false);
+
+  const saveAuthData = (token: string, expiration: Date) => {
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("expires", expiration.toString());
+    setAccessToken(token);
+    setExpires(new Date(expiration));
+    apiService.setAccessToken(token);
+    setIsLoggedIn(true);
+  };
+
+  const clearAuthData = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("expires");
+    setAccessToken(null);
+    setExpires(null);
+    apiService.setAccessToken(null);
+    setIsLoggedIn(false);
+  };
 
   useEffect(() => {
-    const isAuthRoute =
-      window.location.pathname === "/login" ||
-      window.location.pathname === "/signup";
-
     const checkLoggedIn = async () => {
+      const token = localStorage.getItem("accessToken");
+      const expiration = localStorage.getItem("expires");
+
+      if (expiration && token && new Date() < new Date(expiration)) {
+        setExpires(new Date(expiration));
+        setAccessToken(token);
+        apiService.setAccessToken(token);
+        setIsLoggedIn(true);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const result = await apiService.refreshToken();
-        if (result.access_token) {
-          setAccessToken(result.access_token);
-          setExpires(new Date(result.expires));
-          setHasRefresh(true);
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-          setHasRefresh(false);
+        // We shouldn't attempt to refresh the token if we're on the login or signup page.
+        if (!noRefreshPaths.has(window.location.pathname)) {
+          const result = await apiService.refresh();
+          if (result.access_token) {
+            saveAuthData(result.access_token, result.expires);
+          } else {
+            clearAuthData();
+          }
         }
       } catch {
-        setIsLoggedIn(false);
+        clearAuthData();
       } finally {
         setLoading(false);
       }
     };
 
-    if (!isAuthRoute) {
-      checkLoggedIn();
-    } else {
-      setLoading(false);
-      return;
-    }
+    checkLoggedIn();
   }, []);
 
   useEffect(() => {
     if (accessToken && expires) {
       const refreshTime = expires.getTime() - Date.now() - 60000;
       const timeoutId = setTimeout(async () => {
-        await apiService.refreshToken();
+        try {
+          const result = await apiService.refresh();
+          if (result.access_token) {
+            saveAuthData(result.access_token, result.expires);
+          } else {
+            clearAuthData();
+          }
+        } catch {
+          clearAuthData();
+        }
       }, refreshTime);
 
       return () => clearTimeout(timeoutId);
     }
   }, [accessToken, expires]);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     const result = await apiService.login(email, password);
     if (result.access_token) {
-      setAccessToken(result.access_token);
-      setHasRefresh(true);
-      setIsLoggedIn(true);
+      saveAuthData(result.access_token, result.expires);
     }
-  };
+  }, []);
 
   const logout = useCallback(() => {
-    apiService.logout(accessToken ?? ""); // Call the logout API, revoke refresh tokens, etc.
-    setAccessToken(null);
-    setHasRefresh(false);
+    apiService.logout();
+    clearAuthData();
     document.cookie =
       "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    setIsLoggedIn(false);
-  }, [accessToken]);
-
-  const register = async (data: registerInformation) => {
-    const result = await apiService.register(data);
-    return result;
-  };
+  }, []);
 
   const context = useMemo(
     () => ({
       accessToken,
       isLoggedIn,
       loading,
-      hasRefresh,
       login,
       logout,
-      register,
     }),
-    [accessToken, isLoggedIn, loading, hasRefresh, logout]
+    [accessToken, isLoggedIn, loading, login, logout]
   );
 
   return (
