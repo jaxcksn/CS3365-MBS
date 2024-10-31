@@ -33,14 +33,17 @@ function Login() {
     },
   });
 
-  const onSubmit = (data: LoginFormInputs) => {
-    auth?.login(data.username, data.password).then(() => {
-      navigate("/");
-    });
-  };
-
   const auth = useAuth();
   const navigate = useNavigate();
+
+  const onSubmit = async (data: LoginFormInputs) => {
+    try {
+      await auth.login(data.username, data.password);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);

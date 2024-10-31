@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
 import { InProgressBooking } from "../contexts/MBSContext";
-import { registerInformation } from "../services/apiService";
 
 // Movie Booking System Context Hook
 
@@ -26,10 +25,8 @@ export interface AuthContextType {
   accessToken: string | null;
   isLoggedIn: boolean;
   loading: boolean;
-  hasRefresh: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (data: registerInformation) => Promise<number>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

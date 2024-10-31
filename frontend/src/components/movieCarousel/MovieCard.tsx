@@ -1,12 +1,6 @@
 import { Group, Text, Paper, useMantineTheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-
-export interface Movie {
-  id: string;
-  title: string;
-  poster_url: string;
-  showings_start: string;
-}
+import { Movie } from "../../types/api.model";
 
 export interface MovieCardProps {
   movie: Movie;

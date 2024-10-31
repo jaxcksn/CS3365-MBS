@@ -9,16 +9,13 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import MovieCarousel from "../../components/movieCarousel/MovieCarousel";
-import type {
-  Movie,
-  MovieCardProps,
-} from "../../components/movieCarousel/MovieCard";
+import type { MovieCardProps } from "../../components/movieCarousel/MovieCard";
 import { useDebouncedCallback, useMediaQuery } from "@mantine/hooks";
 import setBodyColor from "../../utils/helpers";
-import { useAuth, useMBS } from "../../hooks/ProviderHooks";
+import { useMBS } from "../../hooks/ProviderHooks";
 import { AppHeader } from "../../components/layout/AppHeader";
-import { BACKEND_URL } from "../../constants/Constants";
 import { useNavigate } from "react-router-dom";
+import apiService from "../../services/apiService";
 
 function Home() {
   const [moviesCurrent, setMoviesCurrent] = useState<MovieCardProps[]>([]);
@@ -28,7 +25,6 @@ function Home() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [inputValue, setInputValue] = useState<string>("");
 
-  const auth = useAuth();
   const theme = useMantineTheme();
   setBodyColor({ color: "var(--mantine-color-body)" });
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
@@ -36,45 +32,44 @@ function Home() {
 
   useEffect(() => {
     const fetchMovies = async () => {
-      const response = await fetch(`${BACKEND_URL}/movies`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-        credentials: "include",
-      });
-      const data = (await response.json()) as Movie[];
+      try {
+        const data = await apiService.getMovies();
 
-      setMoviesCurrent(
-        data
-          .filter((movie) => {
-            return new Date(movie.showings_start) <= new Date();
-          })
-          .map((movie) => {
-            return {
-              movie: movie,
-            } satisfies MovieCardProps;
-          })
-      );
+        setMoviesCurrent(
+          data
+            .filter((movie) => {
+              return new Date(movie.showings_start) <= new Date();
+            })
+            .map((movie) => {
+              return {
+                movie: movie,
+              } satisfies MovieCardProps;
+            })
+        );
 
-      setMoviesUpcoming(
-        data
-          .filter((movie) => {
-            return new Date(movie.showings_start) > new Date();
-          })
-          .map((movie) => {
-            return {
-              movie: movie,
-            } satisfies MovieCardProps;
-          })
-      );
-
-      setCurrentLoading(false);
-      setUpcomingLoading(false);
+        setMoviesUpcoming(
+          data
+            .filter((movie) => {
+              return new Date(movie.showings_start) > new Date();
+            })
+            .map((movie) => {
+              return {
+                movie: movie,
+              } satisfies MovieCardProps;
+            })
+        );
+      } catch (err) {
+        console.error(err);
+        setMoviesCurrent([]);
+        setMoviesUpcoming([]);
+      } finally {
+        setCurrentLoading(false);
+        setUpcomingLoading(false);
+      }
     };
 
     fetchMovies();
-  }, [auth]);
+  }, []);
 
   const setValue = async (value: string) => {
     setInputValue(value);

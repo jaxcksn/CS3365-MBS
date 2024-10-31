@@ -18,11 +18,11 @@ def verify_jwt_token(token: str):
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="EXPIRED TOKEN"
         )
     except jwt.InvalidTokenError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="TOKEN INVALID"
         )
 
 
@@ -54,7 +54,7 @@ async def auth(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme
 
     if result is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found..."
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
         )
     else:
         return user_id
@@ -71,6 +71,4 @@ async def admin(credentials: HTTPAuthorizationCredentials = Depends(bearer_schem
     if result["role"] == "admin":
         return user_id
     else:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")

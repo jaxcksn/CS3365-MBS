@@ -99,14 +99,6 @@ paths:
                     type: string
                     x-stoplight:
                       id: 9ys0ttedthbdi
-                  refresh:
-                    type: string
-                    x-stoplight:
-                      id: bh513kh8pak9z
-                  refresh_expires:
-                    type: string
-                    x-stoplight:
-                      id: 90zbj0djco7ys
         "400":
           description: "Bad Request: Shown if the request is bad."
         "409":
@@ -122,18 +114,10 @@ paths:
             schema:
               type: object
               required:
-                - first_name
                 - email
                 - password
                 - phone_number
-                - address
-                - state
-                - zip
               properties:
-                first_name:
-                  type: string
-                  x-stoplight:
-                    id: gudxlo1q96nne
                 email:
                   type: string
                   x-stoplight:
@@ -148,18 +132,6 @@ paths:
                   type: string
                   x-stoplight:
                     id: yw221wdt79rgo
-                address:
-                  type: string
-                  x-stoplight:
-                    id: qf7c0chictzpp
-                state:
-                  type: string
-                  x-stoplight:
-                    id: 6ixvvx295ld3q
-                zip:
-                  type: string
-                  x-stoplight:
-                    id: c03uj3vb9ni0f
     parameters:
       - schema:
           type: string
@@ -228,7 +200,7 @@ paths:
                           type: string
                           x-stoplight:
                             id: wh4sxfduyhsnt
-                        "":
+                        id:
                           type: string
                           x-stoplight:
                             id: 857j6oq7jx4g2
@@ -265,7 +237,7 @@ paths:
                   - access_token
                   - expires
                 properties:
-                  access_token:
+                  token:
                     type: string
                     x-stoplight:
                       id: nexorguteb3zn
