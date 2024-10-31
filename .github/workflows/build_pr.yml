@@ -16,6 +16,7 @@ jobs:
         id: frontend-files-changed
         uses: tj-actions/changed-files@v45
         with:
+          since_last_remote_commit: true
           files: frontend/**
           files_ignore: frontend/README.md, frontend/publish.sh
 
