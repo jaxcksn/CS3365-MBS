@@ -6,6 +6,16 @@ on:
 
 jobs:
   build-and-deploy:
+    if: |
+      github.event_name == 'push' &&
+      (
+        steps.frontend-files-changed.outputs.any_changed == 'true' || 
+        steps.backend-files-changed.outputs.any_changed == 'true' || 
+        steps.db-files-changed.outputs.any_changed == 'true'
+      )
+    environment:
+      name: staging
+      url: https://mbs.jaxcksn.dev/
     runs-on: ubuntu-latest
 
     steps:
