@@ -1,0 +1,33 @@
+name: Delete Docker Image on PR Close
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up branch name as tag
+        id: get_tag_name
+        run: |
+          # Use the branch name as the tag, sanitized for Docker
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          TAG_NAME="${BRANCH_NAME//[^a-zA-Z0-9-_.]/-}"
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+
+      - name: Delete Backend Image Tag in GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IMAGE_TAG="${IMAGE_NAME}:${TAG_NAME}"
+          curl -X DELETE -H "Authorization: Bearer ${GHCR_TOKEN}" \
+            "https://ghcr.io/v2/jaxcksn/cs3365-mbs-backend:${TAG_NAME}/manifests/$(curl -s -H "Authorization: Bearer ${GHCR_TOKEN}" "https://ghcr.io/v2/jaxcksn/cs3365-mbs-backend:${TAG_NAME}/tags/list" | jq -r .tags[0])"
+
+      - name: Delete Frontend Image Tag in GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IMAGE_TAG="${IMAGE_NAME}:${TAG_NAME}"
+          curl -X DELETE -H "Authorization: Bearer ${GHCR_TOKEN}" \
+            "https://ghcr.io/v2/jaxcksn/cs3365-mbs-frontend:${TAG_NAME}/manifests/$(curl -s -H "Authorization: Bearer ${GHCR_TOKEN}" "https://ghcr.io/v2/jaxcksn/cs3365-mbs-frontend:${TAG_NAME}/tags/list" | jq -r .tags[0])"
