@@ -5,7 +5,34 @@ on:
       - main
 
 jobs:
+  check-for-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      run_build: ${{ steps.check.outputs.run_build }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for changes in frontend, backend, or db folders
+        id: check
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            frontend/**
+            backend/**
+            db/**
+          files_ignore: |
+            frontend/README.md
+            frontend/publish.sh
+            backend/README.md
+            backend/publish.sh
+
+      - name: Set run_build output
+        id: set_output
+        run: echo "run_build=${{ steps.check.outputs.any_changed }}" >> $GITHUB_ENV
+
   build-and-deploy:
+    if: needs.check-for-changes.outputs.run_build == 'true'
     environment:
       name: staging
       url: https://mbs.jaxcksn.dev/
@@ -22,7 +49,7 @@ jobs:
           files: frontend/**
           files_ignore: frontend/README.md, frontend/publish.sh
 
-      - name: Get changed files in the frontend folder
+      - name: Get changed files in the backend folder
         id: backend-files-changed
         uses: tj-actions/changed-files@v45
         with:
@@ -44,8 +71,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push frontend image
         if: steps.frontend-files-changed.outputs.any_changed == 'true'
@@ -64,4 +91,4 @@ jobs:
       - name: Deploy to Staging
         if: steps.frontend-files-changed.outputs.any_changed == 'true' || steps.backend-files-changed.outputs.any_changed == 'true' || steps.db-files-changed.outputs.any_changed == 'true'
         run: |
-          curl -X POST ${{secrets.SERVER_IP}}?token=${{secrets.SERVER_TOKEN}}
+          curl -X POST ${{ secrets.SERVER_IP }}?token=${{ secrets.SERVER_TOKEN }}

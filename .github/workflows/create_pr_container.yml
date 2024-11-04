@@ -10,53 +10,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  frontend-build:
+  check-for-changes:
     runs-on: ubuntu-latest
+    outputs:
+      frontend_changed: ${{ steps.check_frontend.outputs.any_changed }}
+      backend_changed: ${{ steps.check_backend.outputs.any_changed }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - uses: nickderobertis/last-successful-commit-action@v1
+      - name: Get last successful commit
+        uses: nickderobertis/last-successful-commit-action@v1
         id: last_successful_commit
         with:
           branch: ${{ github.event.pull_request.base.ref }}
           workflow-id: create_pr_container.yml
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get changed files in the frontend folder
-        id: frontend-files-changed
+      - name: Check frontend files changed
+        id: check_frontend
         uses: tj-actions/changed-files@v45
         with:
           base_sha: ${{ steps.last_successful_commit.outputs.sha }}
           files: frontend/**
           files_ignore: frontend/README.md, frontend/publish.sh
 
-      - name: Login to GitHub Container Registry
-        if: steps.frontend-files-changed.outputs.any_changed == 'true'
-        uses: docker/login-action@v3
+      - name: Check backend files changed
+        id: check_backend
+        uses: tj-actions/changed-files@v45
         with:
-          registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          base_sha: ${{ steps.last_successful_commit.outputs.sha }}
+          files: backend/**
+          files_ignore: backend/README.md, backend/publish.sh
 
-      - name: Set up branch name as tag
-        if: steps.frontend-files-changed.outputs.any_changed == 'true'
-        id: get_tag_name
-        run: |
-          # Use the branch name as the tag, sanitized for Docker
-          BRANCH_NAME="${GITHUB_HEAD_REF}"
-          TAG_NAME="${BRANCH_NAME//[^a-zA-Z0-9-_.]/-}"
-          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
-
-      - name: Build Frontend Image
-        if: steps.frontend-files-changed.outputs.any_changed == 'true'
-        run: |
-          docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-frontend:${{ env.TAG_NAME }} ./frontend --push
-
-  backend-build:
+  frontend-build:
+    if: needs.check-for-changes.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -65,48 +53,56 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - uses: nickderobertis/last-successful-commit-action@v1
-        id: last_successful_commit
-        with:
-          branch: ${{ github.event.pull_request.base.ref }}
-          workflow-id: create_pr_container.yml
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get changed files in the backend folder
-        id: backend-files-changed
-        uses: tj-actions/changed-files@v45
-        with:
-          base_sha: ${{ steps.last_successful_commit.outputs.sha }}
-          files: backend/**
-          files_ignore: backend/README.md, backend/publish.sh
-
       - name: Login to GitHub Container Registry
-        if: steps.backend-files-changed.outputs.any_changed == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up branch name as tag
-        if: steps.backend-files-changed.outputs.any_changed == 'true'
         id: get_tag_name
         run: |
-          # Use the branch name as the tag, sanitized for Docker
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          TAG_NAME="${BRANCH_NAME//[^a-zA-Z0-9-_.]/-}"
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
+
+      - name: Build Frontend Image
+        run: |
+          docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-frontend:${{ env.TAG_NAME }} ./frontend --push
+
+  backend-build:
+    if: needs.check-for-changes.outputs.backend_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up branch name as tag
+        id: get_tag_name
+        run: |
           BRANCH_NAME="${GITHUB_HEAD_REF}"
           TAG_NAME="${BRANCH_NAME//[^a-zA-Z0-9-_.]/-}"
           echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
 
       - name: Build Backend Image
-        if: steps.backend-files-changed.outputs.any_changed == 'true'
         run: |
           docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-backend:${{ env.TAG_NAME }} ./backend --push
 
   validate-build:
     runs-on: ubuntu-latest
     needs: [frontend-build, backend-build]
-    if: ${{ failure() }}
-
+    if: needs.check-for-changes.outputs.frontend_changed == 'true' || needs.check-for-changes.outputs.backend_changed == 'true'
     steps:
       - name: Fail the workflow if any container build fails
         run: |
