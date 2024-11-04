@@ -6,9 +6,6 @@ on:
 
 jobs:
   build-frontend:
-    if: |
-      github.event_name == 'push' &&
-      steps.frontend-files-changed.outputs.any_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

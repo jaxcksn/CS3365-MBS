@@ -6,13 +6,6 @@ on:
 
 jobs:
   build-and-deploy:
-    if: |
-      github.event_name == 'push' &&
-      (
-        steps.frontend-files-changed.outputs.any_changed == 'true' || 
-        steps.backend-files-changed.outputs.any_changed == 'true' || 
-        steps.db-files-changed.outputs.any_changed == 'true'
-      )
     environment:
       name: staging
       url: https://mbs.jaxcksn.dev/
@@ -57,14 +50,14 @@ jobs:
       - name: Build and push frontend image
         if: steps.frontend-files-changed.outputs.any_changed == 'true'
         env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: ${{ steps.frontend-files-changed.outputs.all_changed_files }}
         run: |
           docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-frontend:latest ./frontend --push
 
       - name: Build and push backend image
         if: steps.backend-files-changed.outputs.any_changed == 'true'
         env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: ${{ steps.backend-files-changed.outputs.all_changed_files }}
         run: |
           docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-backend:latest ./backend --push
 
