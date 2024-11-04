@@ -5,6 +5,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useAuth } from "../../hooks/ProviderHooks";
 
 import "./AppHeader.css";
+import { useNavigate } from "react-router-dom";
 
 export interface AppHeaderProps {
   showSearch: boolean;
@@ -14,6 +15,7 @@ export interface AppHeaderProps {
 
 export const AppHeader = (props: AppHeaderProps) => {
   const auth = useAuth();
+  const navigate = useNavigate();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
@@ -21,7 +23,13 @@ export const AppHeader = (props: AppHeaderProps) => {
   return (
     <AppShell.Header pos="relative" className="header">
       <div className="app-header">
-        <div className="logo">
+        <div
+          className="logo"
+          onClick={() => navigate("/")}
+          style={{
+            cursor: "pointer",
+          }}
+        >
           {!isMobile && isMd && props.showSearch ? (
             <MiniLogo fill="white" height={40} width={40} />
           ) : (

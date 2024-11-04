@@ -1,5 +1,5 @@
 /// <reference types="vite-plugin-svgr/client" />
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import Home from "./views/home/Home";
 import "./index.css";
@@ -26,6 +26,8 @@ import { AuthProvider } from "./contexts/AuthContext.tsx";
 
 import "@mantine/notifications/styles.css";
 import { Notifications } from "@mantine/notifications";
+import Showing from "./views/showing/Showing.tsx";
+import ErrorMessage from "./components/layout/ErrorMessage.tsx";
 
 export const RootView = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -104,6 +106,13 @@ const router = createBrowserRouter([
         <Home />
       </ProtectedRoute>
     ),
+    errorElement: (
+      <ErrorMessage
+        code={404}
+        shortMessage="Not Found"
+        longMessage="Well this is awkward, we couldn't find the page you were looking for."
+      />
+    ),
   },
   {
     path: "/movie/:id",
@@ -111,6 +120,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <RootView>
           <Movie />
+        </RootView>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/movie/:id/book",
+    element: (
+      <ProtectedRoute>
+        <RootView>
+          <Showing />
         </RootView>
       </ProtectedRoute>
     ),
@@ -144,14 +163,12 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <AuthProvider>
-      <MantineProvider theme={theme} defaultColorScheme="light">
-        <MBSProvider>
-          <Notifications />
-          <RouterProvider router={router} />
-        </MBSProvider>
-      </MantineProvider>
-    </AuthProvider>
-  </StrictMode>
+  <AuthProvider>
+    <MantineProvider theme={theme} defaultColorScheme="light">
+      <MBSProvider>
+        <Notifications />
+        <RouterProvider router={router} />
+      </MBSProvider>
+    </MantineProvider>
+  </AuthProvider>
 );
