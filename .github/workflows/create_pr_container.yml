@@ -23,7 +23,7 @@ jobs:
         uses: nickderobertis/last-successful-commit-action@v1
         id: last_successful_commit
         with:
-          branch: ${{ github.event.pull_request.base.ref }}
+          branch: ${{ github.event.pull_request.head.ref }}
           workflow-id: create_pr_container.yml
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -77,7 +77,6 @@ jobs:
     needs:
       - check-for-changes
     if: needs.check-for-changes.outputs.backend_changed == 'true'
-    
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
