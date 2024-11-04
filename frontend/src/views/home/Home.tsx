@@ -115,7 +115,7 @@ function Home() {
       });
     }
 
-    navigate("/checkout");
+    navigate("/movie/" + movieId);
   };
 
   return (
@@ -149,7 +149,6 @@ function Home() {
         <MovieCarousel
           data={filteredUpcomingMovies}
           loading={upcomingLoading}
-          onMovieClick={(id) => handleMovieClick(id, false)}
         />
       </Container>
     </AppShell>

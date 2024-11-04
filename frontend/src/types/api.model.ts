@@ -17,8 +17,8 @@ export interface Movie {
 }
 
 export interface MovieShowing {
-  start_date: string;
-  end_date: string;
+  start_date: Date;
+  end_date: Date;
   show_times: string[];
   showing_id: string;
   price: number;
@@ -26,7 +26,7 @@ export interface MovieShowing {
 export interface MovieReview {
   published: Date;
   rating: number;
-  review: string;
+  text: string;
 }
 
 export interface MovieInformation {

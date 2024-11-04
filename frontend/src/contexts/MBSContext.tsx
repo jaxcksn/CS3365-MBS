@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { MBSContext } from "../hooks/ProviderHooks";
 import { LoadingOverlay } from "@mantine/core";
+import { MovieInformation } from "../types/api.model";
 
 export interface InProgressBooking {
   movieId: string;
@@ -14,6 +15,9 @@ export interface InProgressBooking {
 
 export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
   const [ipBooking, setIpBooking] = useState<InProgressBooking | null>(null);
+  const [cachedShowing, setCachedShowing] = useState<
+    MovieInformation | undefined
+  >(undefined);
   const [loading, setLoading] = useState<boolean>(false);
 
   const updateIpBooking = (ip: InProgressBooking) => {
@@ -30,8 +34,15 @@ export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const context = useMemo(
-    () => ({ ipBooking, updateIpBooking, loading, setLoading }),
-    [ipBooking, loading]
+    () => ({
+      ipBooking,
+      cachedShowing,
+      updateIpBooking,
+      setCachedShowing,
+      loading,
+      setLoading,
+    }),
+    [ipBooking, loading, cachedShowing]
   );
 
   return (

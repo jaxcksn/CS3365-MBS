@@ -1,11 +1,14 @@
 import { createContext, useContext } from "react";
 import { InProgressBooking } from "../contexts/MBSContext";
+import { MovieInformation } from "../types/api.model";
 
 // Movie Booking System Context Hook
 
 export interface MBSContextType {
   ipBooking: InProgressBooking | null;
+  cachedShowing: MovieInformation | undefined;
   updateIpBooking: (ip: InProgressBooking) => void;
+  setCachedShowing: (showing: MovieInformation | undefined) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
 }
