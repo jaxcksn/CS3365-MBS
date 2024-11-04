@@ -44,6 +44,8 @@ jobs:
           files_ignore: backend/README.md, backend/publish.sh
 
   frontend-build:
+    needs:
+      - check-for-changes
     if: needs.check-for-changes.outputs.frontend_changed == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -72,7 +74,10 @@ jobs:
           docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-frontend:${{ env.TAG_NAME }} ./frontend --push
 
   backend-build:
+    needs:
+      - check-for-changes
     if: needs.check-for-changes.outputs.backend_changed == 'true'
+    
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
