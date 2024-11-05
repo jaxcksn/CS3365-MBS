@@ -8,9 +8,12 @@ on:
 jobs:
   ghcr-cleanup-image:
     name: ghcr cleanup action
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
+          packages: cs3365-mbs-frontend,cs3365-mbs-backend
           delete-untagged: true
           token: ${{ secrets.GITHUB_TOKEN }}
