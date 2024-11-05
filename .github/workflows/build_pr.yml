@@ -1,11 +1,11 @@
-name: Build
+name: Test Frontend
 on:
   pull_request:
     branches:
       - main
 
 jobs:
-  build-frontend:
+  test:
     runs-on: ubuntu-latest
 
     steps:

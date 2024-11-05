@@ -102,13 +102,3 @@ jobs:
       - name: Build Backend Image
         run: |
           docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-backend:${{ env.TAG_NAME }} ./backend --push
-
-  validate-build:
-    runs-on: ubuntu-latest
-    needs: [frontend-build, backend-build]
-    if: needs.check-for-changes.outputs.frontend_changed == 'true' || needs.check-for-changes.outputs.backend_changed == 'true'
-    steps:
-      - name: Fail the workflow if any container build fails
-        run: |
-          echo "One or both container builds failed. Failing the workflow."
-          exit 1
