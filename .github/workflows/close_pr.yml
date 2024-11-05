@@ -6,6 +6,9 @@ on:
 
 jobs:
   cleanup-image:
+    name: "Cleanup Docker Images"
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Set up branch name as tag
@@ -16,36 +19,8 @@ jobs:
           TAG_NAME="${BRANCH_NAME//[^a-zA-Z0-9-_.]/-}"
           echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_ENV
 
-      - name: Delete Backend Image Tag in GHCR
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          IMAGE_NAME="ghcr.io/jaxcksn/cs3365-mbs-backend"
-          # Get the digest for the tag
-          DIGEST=$(curl -s -H "Authorization: Bearer ${GHCR_TOKEN}" \
-            "https://ghcr.io/v2/jaxcksn/cs3365-mbs-backend/manifests/${TAG_NAME}" | jq -r .config.digest)
-
-          # Check if DIGEST was found and delete
-          if [ -n "$DIGEST" ]; then
-            curl -X DELETE -H "Authorization: Bearer ${GHCR_TOKEN}" \
-              "https://ghcr.io/v2/jaxcksn/cs3365-mbs-backend/manifests/$DIGEST"
-          else
-            echo "No digest found for tag ${TAG_NAME} on backend image."
-          fi
-
-      - name: Delete Frontend Image Tag in GHCR
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          IMAGE_NAME="ghcr.io/jaxcksn/cs3365-mbs-frontend"
-          # Get the digest for the tag
-          DIGEST=$(curl -s -H "Authorization: Bearer ${GHCR_TOKEN}" \
-            "https://ghcr.io/v2/jaxcksn/cs3365-mbs-frontend/manifests/${TAG_NAME}" | jq -r .config.digest)
-
-          # Check if DIGEST was found and delete
-          if [ -n "$DIGEST" ]; then
-            curl -X DELETE -H "Authorization: Bearer ${GHCR_TOKEN}" \
-              "https://ghcr.io/v2/jaxcksn/cs3365-mbs-frontend/manifests/$DIGEST"
-          else
-            echo "No digest found for tag ${TAG_NAME} on frontend image."
-          fi
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          delete-tags: ${{ env.TAG_NAME }}
+          packages: cs3365-mbs-frontend,cs3365-mbs-backend
+          token: ${{ secrets.GITHUB_TOKEN }}

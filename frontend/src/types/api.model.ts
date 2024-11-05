@@ -47,7 +47,7 @@ export interface AdminShowing {
   movie: {
     title: string;
     poster_url: string;
-  }[];
+  };
   id: string;
   release_date: Date;
   price: number;

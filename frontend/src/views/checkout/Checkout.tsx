@@ -12,7 +12,7 @@ import {
   Divider,
   useMantineTheme,
 } from "@mantine/core";
-import { MBSContextType, useMBS } from "../../hooks/ProviderHooks";
+import { useMBS } from "../../hooks/ProviderHooks";
 import { z } from "zod";
 import { countryCodes } from "../../utils/helpers";
 import CountryInput from "../../components/inputs/CountryInput";
@@ -21,7 +21,11 @@ import { useForm, zodResolver } from "@mantine/form";
 import { states } from "../../constants/Constants";
 import ZipCodeInput from "../../components/inputs/ZipCodeInput";
 import { useEffect, useState } from "react";
-import { useDebouncedCallback, useMediaQuery } from "@mantine/hooks";
+import {
+  useDebouncedCallback,
+  useLocalStorage,
+  useMediaQuery,
+} from "@mantine/hooks";
 import StateInput from "../../components/inputs/StateInput";
 import "./Checkout.css";
 import CreditCardInput from "../../components/inputs/CreditCardInput";
@@ -33,55 +37,53 @@ import Amex from "../../assets/amex.svg?react";
 import Mastercard from "../../assets/mastercard.svg?react";
 import Visa from "../../assets/visa.svg?react";
 import Discover from "../../assets/discover.svg?react";
+import Dinero from "dinero.js";
+import { InProgressBooking } from "../../contexts/MBSContext";
 
 const CheckoutSummary = ({
   isSmall,
-  mbsContext,
+  ipBooking,
 }: {
   isSmall: boolean;
-  mbsContext: MBSContextType;
+  ipBooking: InProgressBooking | null;
 }) => {
   return (
     <Paper
       shadow="xs"
-      p="xl"
       radius="lg"
       h={{ base: "auto", md: "fit-content" }}
       withBorder
+      p={{
+        base: "md",
+        xs: "xl",
+      }}
     >
       {isSmall && <Title order={1}>Checkout</Title>}
       <Title order={2} pb="sm">
         Summary
       </Title>
-      <Group justify="space-between" align="center" gap={0}>
+      <Group justify="space-between" align="center" gap={0} wrap="nowrap">
         <Text size="lg" fw="bold">
-          x{mbsContext.ipBooking?.quantity}
+          x{ipBooking?.quantity}
           {" - "}
-          {mbsContext.ipBooking?.movieName}
+          {ipBooking?.movieName}
         </Text>
         <Text size="lg" fw="bold">
           <NumberFormatter
             prefix="$"
             decimalScale={2}
-            value={
-              mbsContext.ipBooking
-                ? mbsContext.ipBooking.price * mbsContext.ipBooking.quantity
-                : 0
-            }
+            value={Dinero(ipBooking?.price as Dinero.Options)
+              .multiply(ipBooking?.quantity ?? 0)
+              .toFormat()}
           />
         </Text>
       </Group>
       <Group justify="space-between" align="center" fs="1rem">
         <Text fw={600}>
-          {mbsContext.ipBooking?.theater} - {mbsContext.ipBooking?.time}
+          {ipBooking?.theater} - {ipBooking?.time}
         </Text>
         <Text>
-          <NumberFormatter
-            value={mbsContext.ipBooking ? mbsContext.ipBooking.price : 0}
-            decimalScale={2}
-            prefix="$"
-          />{" "}
-          Each
+          {Dinero(ipBooking?.price as Dinero.Options).toFormat()} Each
         </Text>
       </Group>
     </Paper>
@@ -112,6 +114,8 @@ export const Checkout = () => {
       return true;
     }),
   });
+
+  const mbsContext = useMBS();
 
   const billingAddressForm = useForm({
     mode: "controlled",
@@ -152,6 +156,7 @@ export const Checkout = () => {
     }
 
     mbsContext.setLoading(true);
+    setIpBooking(null);
     setTimeout(() => {
       mbsContext.setLoading(false);
       navigate("/");
@@ -193,13 +198,22 @@ export const Checkout = () => {
 
   ccForm.watch("ccNumber", debouncedCardChange);
 
-  const mbsContext = useMBS();
+  const [ipBooking, setIpBooking] = useLocalStorage<InProgressBooking | null>({
+    key: "mbs_ipBooking",
+    defaultValue: null,
+  });
 
   useEffect(() => {
-    if (!mbsContext.ipBooking) {
-      navigate("/");
+    if (!ipBooking) {
+      mbsContext.setLoading(true);
+      const timeout = setTimeout(() => {
+        navigate("/");
+      }, 10000);
+      return () => clearTimeout(timeout);
+    } else {
+      mbsContext.setLoading(false);
     }
-  }, [mbsContext.ipBooking, navigate]);
+  }, [ipBooking]);
 
   return (
     <Container
@@ -228,64 +242,16 @@ export const Checkout = () => {
           }}
           flex={4}
           shadow="xs"
-          p="xl"
+          p={{
+            base: "md",
+            sm: "xl",
+            xs: "lg",
+          }}
           radius="lg"
           h={{ base: "auto", md: "fit-content" }}
           withBorder
         >
           {!(isSmall ?? true) && <Title order={1}>Checkout</Title>}
-          <form>
-            <Group justify="space-between" align="center" pb="sm">
-              <Title order={3}>Payment info</Title>
-              <Group gap={10}>
-                <Visa width="2rem" />
-                <Mastercard width="2rem" />
-                <Amex width="2rem" />
-                <Discover width="2rem" />
-              </Group>
-            </Group>
-            <div className="checkout-form">
-              <TextInput
-                label="Full Name"
-                withAsterisk
-                key={ccForm.key("name")}
-                {...ccForm.getInputProps("name")}
-                className="take-full"
-              />
-              <CreditCardInput
-                cardtype={cardType?.type ?? "unknown"}
-                label="Credit Card"
-                key={ccForm.key("ccNumber")}
-                {...ccForm.getInputProps("ccNumber")}
-                withAsterisk
-                className="take-3"
-                change={(value) => {
-                  // ccForm.clearFieldError("ccNumber");
-                  ccForm.setValues({ ccNumber: value });
-                }}
-              />
-              <MaskedInput
-                placeholder="MM/YY"
-                label="Exp. Date"
-                mask="[0]0/[0]0"
-                key={ccForm.key("ccExp")}
-                {...ccForm.getInputProps("ccExp")}
-                withAsterisk
-                className="take-2 split"
-              />
-              <MaskedInput
-                label={cardType?.code.name ?? "CVV"}
-                mask={cardType?.code.size === 4 ? "0000" : "000"}
-                key={ccForm.key("ccCVV")}
-                {...ccForm.getInputProps("ccCVV")}
-                withAsterisk
-                placeholder={cardType?.code.name ?? "CVV"}
-                className="take-1 split"
-              />
-            </div>
-          </form>
-
-          <Divider />
           <form>
             <Title order={3} pb="sm">
               Billing address
@@ -352,6 +318,58 @@ export const Checkout = () => {
               )}
             </div>
           </form>
+          <Divider />
+          <form>
+            <Group justify="space-between" align="center" pb="sm">
+              <Title order={3}>Payment info</Title>
+              <Group gap={3}>
+                <Visa width="2rem" />
+                <Mastercard width="2rem" />
+                <Amex width="2rem" />
+                <Discover width="2rem" />
+              </Group>
+            </Group>
+            <div className="checkout-form">
+              <TextInput
+                label="Full Name"
+                withAsterisk
+                key={ccForm.key("name")}
+                {...ccForm.getInputProps("name")}
+                className="take-full"
+              />
+              <CreditCardInput
+                cardtype={cardType?.type ?? "unknown"}
+                label="Credit Card"
+                key={ccForm.key("ccNumber")}
+                {...ccForm.getInputProps("ccNumber")}
+                withAsterisk
+                className="take-3"
+                change={(value) => {
+                  // ccForm.clearFieldError("ccNumber");
+                  ccForm.setValues({ ccNumber: value });
+                }}
+              />
+              <MaskedInput
+                placeholder="MM/YY"
+                label="Exp. Date"
+                mask="[0]0/[0]0"
+                key={ccForm.key("ccExp")}
+                {...ccForm.getInputProps("ccExp")}
+                withAsterisk
+                className="take-2 split"
+              />
+              <MaskedInput
+                label={cardType?.code.name ?? "CVV"}
+                mask={cardType?.code.size === 4 ? "0000" : "000"}
+                key={ccForm.key("ccCVV")}
+                {...ccForm.getInputProps("ccCVV")}
+                withAsterisk
+                placeholder={cardType?.code.name ?? "CVV"}
+                className="take-1 split"
+              />
+            </div>
+          </form>
+
           <div style={{ display: "flex" }}>
             <Button
               fullWidth
@@ -367,7 +385,7 @@ export const Checkout = () => {
         </Paper>
 
         <Stack flex={3}>
-          <CheckoutSummary isSmall={isSmall ?? false} mbsContext={mbsContext} />
+          <CheckoutSummary isSmall={isSmall ?? false} ipBooking={ipBooking} />
         </Stack>
       </Flex>
     </Container>

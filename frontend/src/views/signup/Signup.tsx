@@ -122,6 +122,7 @@ export default function Signup() {
               size={isMobile ? "md" : "sm"}
             />
             <PasswordInput
+              withAsterisk
               label="Password"
               placeholder="Password"
               type="password"
@@ -130,6 +131,7 @@ export default function Signup() {
               size={isMobile ? "md" : "sm"}
             />
             <PhoneNumberInput
+              withAsterisk
               key={form.key("phone_number")}
               {...form.getInputProps("phone_number")}
               size={isMobile ? "md" : "sm"}

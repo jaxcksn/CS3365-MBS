@@ -23,6 +23,7 @@ import dayjs from "dayjs";
 import apiService from "../../services/apiService";
 import { useMediaQuery } from "@mantine/hooks";
 import { useMBS } from "../../hooks/ProviderHooks";
+import mockService from "../../services/mockService";
 
 export default function Movie() {
   const mbs = useMBS();
@@ -52,7 +53,9 @@ export default function Movie() {
     const fetchMovie = async () => {
       try {
         if (id) {
-          const data = await apiService.getMovie(id);
+          const data = mbs.isMockMode
+            ? await mockService.getMovie(id)
+            : await apiService.getMovie(id);
           setMovieData(data);
           setLoading(false);
         }

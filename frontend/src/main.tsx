@@ -10,36 +10,25 @@ import {
   useLocation,
 } from "react-router-dom";
 import {
-  AppShell,
   createTheme,
   MantineColorsTuple,
   MantineProvider,
 } from "@mantine/core";
+import { DatesProvider } from "@mantine/dates";
 import Login from "./views/login/Login.tsx";
 import Signup from "./views/signup/Signup.tsx";
 import { useAuth } from "./hooks/ProviderHooks.ts";
 import { MBSProvider } from "./contexts/MBSContext.tsx";
-import { AppHeader } from "./components/layout/AppHeader.tsx";
 import { Checkout } from "./views/checkout/Checkout.tsx";
 import Movie from "./views/movie/Movie.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 
 import "@mantine/notifications/styles.css";
+import "@mantine/dates/styles.css";
 import { Notifications } from "@mantine/notifications";
 import Showing from "./views/showing/Showing.tsx";
 import ErrorMessage from "./components/layout/ErrorMessage.tsx";
-
-export const RootView = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <AppShell
-      header={{ height: 60 }}
-      style={{ width: "100%", minHeight: "100%" }}
-    >
-      <AppHeader showSearch={false} />
-      {children}
-    </AppShell>
-  );
-};
+import AppRoot from "./components/layout/AppRoot.tsx";
 
 export const RedirectIfAuthenticated = ({
   children,
@@ -118,9 +107,9 @@ const router = createBrowserRouter([
     path: "/movie/:id",
     element: (
       <ProtectedRoute>
-        <RootView>
+        <AppRoot>
           <Movie />
-        </RootView>
+        </AppRoot>
       </ProtectedRoute>
     ),
   },
@@ -128,9 +117,9 @@ const router = createBrowserRouter([
     path: "/movie/:id/book",
     element: (
       <ProtectedRoute>
-        <RootView>
+        <AppRoot>
           <Showing />
-        </RootView>
+        </AppRoot>
       </ProtectedRoute>
     ),
   },
@@ -154,9 +143,9 @@ const router = createBrowserRouter([
     path: "/checkout",
     element: (
       <ProtectedRoute>
-        <RootView>
+        <AppRoot>
           <Checkout />
-        </RootView>
+        </AppRoot>
       </ProtectedRoute>
     ),
   },
@@ -165,10 +154,12 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <AuthProvider>
     <MantineProvider theme={theme} defaultColorScheme="light">
-      <MBSProvider>
-        <Notifications />
-        <RouterProvider router={router} />
-      </MBSProvider>
+      <DatesProvider settings={{ locale: "en-us" }}>
+        <MBSProvider>
+          <Notifications />
+          <RouterProvider router={router} />
+        </MBSProvider>
+      </DatesProvider>
     </MantineProvider>
   </AuthProvider>
 );

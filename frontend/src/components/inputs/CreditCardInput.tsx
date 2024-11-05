@@ -11,9 +11,13 @@ interface CreditCardInputProps extends InputBaseProps {
   change?: (value: string) => void;
 }
 
-export default function CreditCardInput(props: CreditCardInputProps) {
+export default function CreditCardInput({
+  cardtype,
+  change,
+  ...restProps
+}: CreditCardInputProps) {
   const cardSVG = () => {
-    switch (props.cardtype) {
+    switch (cardtype) {
       case "american-express":
         return <Amex width="2rem" />;
       case "discover":
@@ -36,19 +40,19 @@ export default function CreditCardInput(props: CreditCardInputProps) {
   };
 
   const cardMask =
-    props.cardtype === "american-express"
+    cardtype === "american-express"
       ? "0000 000000 00000" // 15-digit format for Amex
       : "0000 0000 0000 0000";
 
   const onPasteHandler = (event: React.ClipboardEvent<HTMLInputElement>) => {
     const clipboardData = event.clipboardData?.getData("text/plain");
     const value = clipboardData?.replace(/[^0-9]/g, "");
-    if (props.change) props.change(value);
+    if (change) change(value);
   };
 
   return (
     <InputBase
-      {...props}
+      {...restProps}
       component={IMaskInput}
       mask={cardMask}
       unmask={true}

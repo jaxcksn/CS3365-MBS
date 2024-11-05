@@ -4,4 +4,5 @@
 
 .actions {
   padding-right: var(--mantine-spacing-md);
+  align-items: center;
 }
