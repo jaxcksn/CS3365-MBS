@@ -16,8 +16,12 @@ import { useMBS } from "../../hooks/ProviderHooks";
 import { AppHeader } from "../../components/layout/AppHeader";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../services/apiService";
+import mockService from "../../services/mockService";
 
 function Home() {
+  const mbs = useMBS();
+  localStorage.removeItem("mbs_ipBooking");
+
   const [moviesCurrent, setMoviesCurrent] = useState<MovieCardProps[]>([]);
   const [currentLoading, setCurrentLoading] = useState(true);
   const [moviesUpcoming, setMoviesUpcoming] = useState<MovieCardProps[]>([]);
@@ -31,9 +35,12 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    mbs.setLoading(false);
     const fetchMovies = async () => {
       try {
-        const data = await apiService.getMovies();
+        const data = mbs.isMockMode
+          ? await mockService.getMovies()
+          : await apiService.getMovies();
 
         setMoviesCurrent(
           data
@@ -91,30 +98,7 @@ function Home() {
     a.movie.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const mbsContext = useMBS();
-
-  const handleMovieClick = (movieId: string, current: boolean) => {
-    let movie: MovieCardProps | undefined;
-    if (current) {
-      movie = moviesCurrent.find((movie) => movie.movie.id === movieId);
-    } else {
-      movie = moviesUpcoming.find((movie) => movie.movie.id === movieId);
-    }
-
-    if (!movie) {
-      return;
-    } else {
-      mbsContext.updateIpBooking({
-        movieId: movie.movie.id,
-        movieName: movie.movie.title,
-        theater: "LUB",
-        time: "10:00AM",
-        date: "2024/10/30",
-        quantity: 2,
-        price: 20,
-      });
-    }
-
+  const handleMovieClick = (movieId: string) => {
     navigate("/movie/" + movieId);
   };
 
@@ -141,7 +125,7 @@ function Home() {
         <MovieCarousel
           data={filteredCurrentMovies}
           loading={currentLoading}
-          onMovieClick={(id) => handleMovieClick(id, true)}
+          onMovieClick={(id) => handleMovieClick(id)}
         />
         <Title order={3} pl="md" pt="sm" pb="sm">
           Upcoming

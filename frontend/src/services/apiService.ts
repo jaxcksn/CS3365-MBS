@@ -17,6 +17,8 @@ import {
 import { notifications } from "@mantine/notifications";
 
 class ApiService {
+  public isDebug: boolean = APP_MODE === "DEV";
+
   private api: AxiosInstance;
   private accessToken: string | null = null;
 
@@ -44,9 +46,9 @@ class ApiService {
     this.api.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (APP_MODE === "DEV") {
+        if (this.isDebug) {
           notifications.show({
-            title: `DEBUG: Request to ${error.config.url} failed.`,
+            title: `API DEBUG: Request to ${error.config.url} failed.`,
             message: `Error ${error.status}: ${error.response?.data.detail || "An error occurred"}`,
             color: "red",
             autoClose: 5000,

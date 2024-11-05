@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { MBSContext } from "../hooks/ProviderHooks";
 import { LoadingOverlay } from "@mantine/core";
 import { MovieInformation } from "../types/api.model";
+import { useDisclosure, useLocalStorage } from "@mantine/hooks";
+import { APP_MODE } from "../constants/Constants";
+import apiService from "../services/apiService";
 
 export interface InProgressBooking {
   movieId: string;
@@ -10,7 +13,7 @@ export interface InProgressBooking {
   time: string;
   date: string;
   quantity: number;
-  price: number;
+  price: Dinero.Dinero;
 }
 
 export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
@@ -19,6 +22,15 @@ export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
     MovieInformation | undefined
   >(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [optionsDrawer, optionsHandler] = useDisclosure(false);
+  const [isDebug, setIsDebug] = useLocalStorage<boolean>({
+    key: "devSettings_mbs_isDebug",
+    defaultValue: APP_MODE === "DEV",
+  });
+  const [isMockMode, setIsMockMode] = useLocalStorage<boolean>({
+    key: "devSettings_mbs_isMockMode",
+    defaultValue: false,
+  });
 
   const updateIpBooking = (ip: InProgressBooking) => {
     setIpBooking((prev) => {
@@ -33,6 +45,11 @@ export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const updateIsDebug = (debug: boolean) => {
+    setIsDebug(debug);
+    apiService.isDebug = debug;
+  };
+
   const context = useMemo(
     () => ({
       ipBooking,
@@ -41,8 +58,15 @@ export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
       setCachedShowing,
       loading,
       setLoading,
+      optionsDrawer,
+      openOptions: optionsHandler.open,
+      closeOptions: optionsHandler.close,
+      isDebug,
+      setIsDebug: updateIsDebug,
+      isMockMode,
+      setIsMockMode,
     }),
-    [ipBooking, loading, cachedShowing]
+    [ipBooking, loading, cachedShowing, optionsDrawer, isDebug, isMockMode]
   );
 
   return (

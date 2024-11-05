@@ -11,6 +11,13 @@ export interface MBSContextType {
   setCachedShowing: (showing: MovieInformation | undefined) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  optionsDrawer: boolean;
+  openOptions: () => void;
+  closeOptions: () => void;
+  isDebug: boolean;
+  setIsDebug: (debug: boolean) => void;
+  isMockMode: boolean;
+  setIsMockMode: (mock: boolean) => void;
 }
 
 export const MBSContext = createContext<MBSContextType | undefined>(undefined);

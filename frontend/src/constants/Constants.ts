@@ -2,6 +2,17 @@ export const APP_MODE: "DEV" | "PROD" = import.meta.env.VITE_MODE;
 export const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5050";
 
+export const theaters: {
+  [id: string]: string;
+} = {
+  LUB: "Lubbock",
+  ABL: "Abilene",
+  PLV: "Plainview",
+  SNY: "Snyder",
+  LLL: "Levelland",
+  SYN: "Synder",
+};
+
 export const countries: {
   [code: string]: string;
 } = {
