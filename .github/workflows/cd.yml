@@ -7,6 +7,7 @@ on:
 jobs:
   check-for-changes:
     runs-on: ubuntu-latest
+    name: "Check for File Changes"
     outputs:
       files_changed: ${{ steps.file_check.outputs.any_changed }}
     steps:
@@ -31,6 +32,7 @@ jobs:
     needs:
       - check-for-changes
     if: needs.check-for-changes.outputs.files_changed == 'true'
+    name: "Build for Staging Environment"
     environment:
       name: staging
       url: https://mbs.jaxcksn.dev/

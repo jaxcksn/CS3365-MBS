@@ -7,6 +7,7 @@ on:
 jobs:
   build-frontend:
     runs-on: ubuntu-latest
+    name: "Test Frontend Build"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

@@ -12,6 +12,7 @@ concurrency:
 jobs:
   check-for-changes:
     runs-on: ubuntu-latest
+    name: "Check for File Changes"
     outputs:
       frontend_changed: ${{ steps.check_frontend.outputs.any_changed }}
       backend_changed: ${{ steps.check_backend.outputs.any_changed }}
@@ -47,6 +48,7 @@ jobs:
           files_ignore: backend/README.md, backend/publish.sh
 
   frontend-build:
+    name: "Build Frontend Image"
     needs:
       - check-for-changes
     if: needs.check-for-changes.outputs.frontend_changed == 'true'
@@ -77,6 +79,7 @@ jobs:
           docker buildx build --platform linux/arm64 -t ghcr.io/jaxcksn/cs3365-mbs-frontend:${{ env.TAG_NAME }} ./frontend --push
 
   backend-build:
+    name: "Build Backend Image"
     needs:
       - check-for-changes
     if: needs.check-for-changes.outputs.backend_changed == 'true'

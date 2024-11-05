@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -25,6 +25,7 @@ jobs:
   # Single deploy job since we're just deploying
   deploy:
     runs-on: ubuntu-latest
+    name: "Deploy OpenAPI Documentation"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
