@@ -1,6 +1,5 @@
 import { Title, Text, Button } from "@mantine/core";
 import { ContextModalProps } from "@mantine/modals";
-import React from "react";
 
 export interface ErrorModalProps {
   errorMessage: string;
