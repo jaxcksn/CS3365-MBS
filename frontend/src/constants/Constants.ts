@@ -1,3 +1,5 @@
+import { loadStripe } from "@stripe/stripe-js";
+
 export const APP_MODE: "DEV" | "PROD" = import.meta.env.VITE_MODE;
 export const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ?? "http://localhost:5050";
@@ -7,10 +9,10 @@ export const theaters: {
 } = {
   LUB: "Lubbock",
   ABL: "Abilene",
+  ARM: "Amarillo",
   PLV: "Plainview",
-  SNY: "Snyder",
+  SYN: "Snyder",
   LLL: "Levelland",
-  SYN: "Synder",
 };
 
 export const countries: {
@@ -325,3 +327,5 @@ export const states: { [code: string]: string } = {
   WI: "Wisconsin",
   WY: "Wyoming",
 };
+
+export const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_API}`);

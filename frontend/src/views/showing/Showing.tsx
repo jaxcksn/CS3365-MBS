@@ -14,18 +14,17 @@ import {
   NumberFormatter,
   NumberInput,
   Paper,
-  Select,
   Stack,
   Title,
   Group,
   Input,
-  useMantineTheme,
+  NativeSelect,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import { useForm, zodResolver } from "@mantine/form";
 import { z } from "zod";
 import validator from "validator";
-import { useDisclosure, useLocalStorage, useMediaQuery } from "@mantine/hooks";
+import { useDisclosure, useLocalStorage } from "@mantine/hooks";
 import { InProgressBooking } from "../../contexts/MBSContext";
 import dayjs from "dayjs";
 import Dinero from "dinero.js";
@@ -55,19 +54,21 @@ export default function Showing() {
         (val) => validator.isIn(val, Object.keys(theaters)),
         "Invalid theater"
       ),
-    time: z
-      .string()
-      .refine(
-        (val) => validator.isIn(val, movie?.showing.show_times ?? []),
-        "Invalid time"
-      ),
+    time: z.string().refine((val) => {
+      console.log(movie?.showing.show_times);
+      console.log(val);
+      return validator.isIn(val, movie?.showing.show_times ?? []);
+    }, "Invalid time"),
   });
 
-  const theme = useMantineTheme();
   setBodyColor({ color: "var(--mantine-color-body)" });
-  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
-  const form = useForm({
+  const form = useForm<{
+    date: Date;
+    quantity: number;
+    theater: string;
+    time: string | null;
+  }>({
     mode: "controlled",
     initialValues: {
       date: new Date(),
@@ -136,8 +137,8 @@ export default function Showing() {
     setIpBooking({
       date: formValues.date.toUTCString(),
       quantity: form.getValues().quantity,
-      theater: theaters[form.getValues().theater],
-      time: form.getValues().time,
+      theater: form.getValues().theater,
+      time: form.getValues().time ?? "",
       price: Dinero({
         amount: Math.round(movie.showing.price * 100),
         currency: "USD",
@@ -257,28 +258,32 @@ export default function Showing() {
             </Paper>
           </Stack>
           <Stack flex={2} gap="sm">
-            <Select
-              data={Object.keys(theaters).map((id: string) => {
-                return { value: id, label: theaters[id] };
-              })}
-              placeholder="Select Theater"
+            <NativeSelect
+              data={[
+                { value: "", label: "Select Theater", disabled: true },
+                ...Object.keys(theaters).map((id: string) => {
+                  return { value: id, label: theaters[id] };
+                }),
+              ]}
               label="Theater"
               size="md"
+              value={form.getValues().theater}
               key={form.key("theater")}
               {...form.getInputProps("theater")}
-              searchable
               withAsterisk
             />
-            <Select
-              data={movie?.showing.show_times.map((time) => {
-                return { value: time, label: time };
-              })}
-              placeholder="Select Time"
+            <NativeSelect
+              data={[
+                { value: "", label: "Select Time", disabled: true },
+                ...(movie?.showing.show_times ?? []).map((time) => {
+                  return { value: time, label: time };
+                }),
+              ]}
               label="Showing Time"
               size="md"
+              value={form.getValues().time}
               key={form.key("time")}
               {...form.getInputProps("time")}
-              searchable
               withAsterisk
             />
             <NumberInput
@@ -290,6 +295,7 @@ export default function Showing() {
               key={form.key("quantity")}
               {...form.getInputProps("quantity")}
               withAsterisk
+              type="tel"
             />
 
             <Button
@@ -297,7 +303,7 @@ export default function Showing() {
                 base: "sm",
                 sm: "auto",
               }}
-              size={isMobile ? "md" : "sm"}
+              size="md"
               role="submit"
               onClick={onSubmit}
             >

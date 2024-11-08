@@ -24,9 +24,11 @@ import apiService from "../../services/apiService";
 import { useMediaQuery } from "@mantine/hooks";
 import { useMBS } from "../../hooks/ProviderHooks";
 import mockService from "../../services/mockService";
+import setBodyColor from "../../utils/helpers";
 
 export default function Movie() {
   const mbs = useMBS();
+  setBodyColor({ color: "var(--mantine-color-body)" });
 
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
@@ -163,7 +165,7 @@ export default function Movie() {
               sm: "row-reverse",
             }}
           >
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, marginRight: "auto", marginLeft: "auto" }}>
               <Skeleton
                 style={{
                   aspectRatio: "2 / 3",
@@ -194,7 +196,10 @@ export default function Movie() {
           sm: "row-reverse",
         }}
       >
-        <div style={{ flex: 1 }} className="poster">
+        <div
+          style={{ flex: 1, marginRight: "auto", marginLeft: "auto" }}
+          className="poster"
+        >
           <Paper
             shadow="xs"
             radius="md"

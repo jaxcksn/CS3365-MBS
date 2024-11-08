@@ -5,8 +5,6 @@ import {
   AdminShowing,
   AdminUpdateShowingRequest,
   Booking,
-  CreateBookingRequest,
-  CreateBookingResponse,
   CreateMovieReviewRequest,
   LoginResponse,
   Movie,
@@ -15,6 +13,7 @@ import {
   Ticket,
 } from "../types/api.model";
 import { notifications } from "@mantine/notifications";
+import { InProgressBooking } from "../contexts/MBSContext";
 
 class ApiService {
   public isDebug: boolean = APP_MODE === "DEV";
@@ -140,16 +139,6 @@ class ApiService {
   // !SECTION
   // SECTION Modifying Calls
 
-  public async createBooking(
-    params: CreateBookingRequest
-  ): Promise<CreateBookingResponse> {
-    const response = await this.api.post<CreateBookingResponse>("/booking", {
-      ...params,
-      transaction_id: "test",
-    });
-    return response.data;
-  }
-
   public async createMovieReview(
     params: CreateMovieReviewRequest
   ): Promise<void> {
@@ -181,6 +170,16 @@ class ApiService {
   }
 
   // !SECTION
+
+  public async getPaymentIntent(
+    order: InProgressBooking
+  ): Promise<{ client_secret: string }> {
+    const response = await this.api.post<{ client_secret: string }>(
+      "/payment/intent",
+      order
+    );
+    return response.data;
+  }
 }
 
 export default new ApiService();

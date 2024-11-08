@@ -6,6 +6,7 @@ import "./index.css";
 import {
   createBrowserRouter,
   Navigate,
+  Outlet,
   RouterProvider,
   useLocation,
 } from "react-router-dom";
@@ -22,13 +23,16 @@ import { MBSProvider } from "./contexts/MBSContext.tsx";
 import { Checkout } from "./views/checkout/Checkout.tsx";
 import Movie from "./views/movie/Movie.tsx";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
-
+import { ModalsProvider } from "@mantine/modals";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
 import { Notifications } from "@mantine/notifications";
 import Showing from "./views/showing/Showing.tsx";
 import ErrorMessage from "./components/layout/ErrorMessage.tsx";
 import AppRoot from "./components/layout/AppRoot.tsx";
+import { ErrorModal } from "./components/modals.tsx";
+import Complete, { CompleteSuccessScreen } from "./views/checkout/Complete.tsx";
+import CheckoutLayout from "./views/checkout/CheckoutLayout.tsx";
 
 export const RedirectIfAuthenticated = ({
   children,
@@ -54,16 +58,13 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   if (auth.loading || auth === undefined) {
-    // Render a loading screen or spinner while checking the authentication status
     return <div />;
   }
 
   if (!auth.isLoggedIn) {
-    // If the user is not authenticated, redirect to login page and save the current location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If the user is authenticated, render the protected page
   return children;
 };
 
@@ -144,7 +145,29 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <AppRoot>
-          <Checkout />
+          <CheckoutLayout>
+            <Outlet />
+          </CheckoutLayout>
+        </AppRoot>
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: "", // This will render the Checkout component at /checkout
+        element: <Checkout />,
+      },
+      {
+        path: "complete", // This will render the Complete component at /checkout/complete
+        element: <Complete />,
+      },
+    ],
+  },
+  {
+    path: "/success",
+    element: (
+      <ProtectedRoute>
+        <AppRoot>
+          <CompleteSuccessScreen />
         </AppRoot>
       </ProtectedRoute>
     ),
@@ -153,13 +176,15 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <AuthProvider>
-    <MantineProvider theme={theme} defaultColorScheme="light">
-      <DatesProvider settings={{ locale: "en-us" }}>
-        <MBSProvider>
-          <Notifications />
-          <RouterProvider router={router} />
-        </MBSProvider>
-      </DatesProvider>
+    <MantineProvider theme={theme}>
+      <ModalsProvider modals={{ error: ErrorModal }}>
+        <DatesProvider settings={{ locale: "en-us" }}>
+          <MBSProvider>
+            <Notifications />
+            <RouterProvider router={router} />
+          </MBSProvider>
+        </DatesProvider>
+      </ModalsProvider>
     </MantineProvider>
   </AuthProvider>
 );

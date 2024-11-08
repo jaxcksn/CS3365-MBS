@@ -22,6 +22,11 @@ export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
     MovieInformation | undefined
   >(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isMockPayment, setIsMockPayment] = useLocalStorage<boolean>({
+    key: "devSettings_mbs_isMockPayment",
+    defaultValue: false,
+  });
+
   const [optionsDrawer, optionsHandler] = useDisclosure(false);
   const [isDebug, setIsDebug] = useLocalStorage<boolean>({
     key: "devSettings_mbs_isDebug",
@@ -65,8 +70,18 @@ export const MBSProvider = ({ children }: { children: React.ReactNode }) => {
       setIsDebug: updateIsDebug,
       isMockMode,
       setIsMockMode,
+      isMockPayment,
+      setIsMockPayment,
     }),
-    [ipBooking, loading, cachedShowing, optionsDrawer, isDebug, isMockMode]
+    [
+      ipBooking,
+      loading,
+      cachedShowing,
+      optionsDrawer,
+      isDebug,
+      isMockMode,
+      isMockPayment,
+    ]
   );
 
   return (

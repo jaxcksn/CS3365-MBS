@@ -7,38 +7,24 @@ import {
   NumberFormatter,
   Group,
   Stack,
-  TextInput,
   Button,
   Divider,
   useMantineTheme,
 } from "@mantine/core";
-import { useMBS } from "../../hooks/ProviderHooks";
-import { z } from "zod";
-import { countryCodes } from "../../utils/helpers";
-import CountryInput from "../../components/inputs/CountryInput";
-import validator from "validator";
-import { useForm, zodResolver } from "@mantine/form";
-import { states } from "../../constants/Constants";
-import ZipCodeInput from "../../components/inputs/ZipCodeInput";
 import { useEffect, useState } from "react";
-import {
-  useDebouncedCallback,
-  useLocalStorage,
-  useMediaQuery,
-} from "@mantine/hooks";
-import StateInput from "../../components/inputs/StateInput";
+import { useMediaQuery } from "@mantine/hooks";
 import "./Checkout.css";
-import CreditCardInput from "../../components/inputs/CreditCardInput";
-import creditCardType from "credit-card-type";
-import { CreditCardType } from "credit-card-type/dist/types";
-import MaskedInput from "../../components/inputs/MaskedInput";
 import { useNavigate } from "react-router-dom";
-import Amex from "../../assets/amex.svg?react";
-import Mastercard from "../../assets/mastercard.svg?react";
-import Visa from "../../assets/visa.svg?react";
-import Discover from "../../assets/discover.svg?react";
 import Dinero from "dinero.js";
 import { InProgressBooking } from "../../contexts/MBSContext";
+import {
+  AddressElement,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+import { showErrorModal } from "../../utils/helpers";
+import { theaters } from "../../constants/Constants";
 
 const CheckoutSummary = ({
   isSmall,
@@ -80,7 +66,7 @@ const CheckoutSummary = ({
       </Group>
       <Group justify="space-between" align="center" fs="1rem">
         <Text fw={600}>
-          {ipBooking?.theater} - {ipBooking?.time}
+          {theaters[ipBooking?.theater ?? ""] ?? "Unknown"} - {ipBooking?.time}
         </Text>
         <Text>
           {Dinero(ipBooking?.price as Dinero.Options).toFormat()} Each
@@ -90,10 +76,7 @@ const CheckoutSummary = ({
   );
 };
 
-export const Checkout = () => {
-  const navigate = useNavigate();
-  const theme = useMantineTheme();
-  const isSmall = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+/*
 
   const billingAddressSchema = z.object({
     country: z
@@ -131,128 +114,7 @@ export const Checkout = () => {
     validateInputOnBlur: true,
   });
 
-  const [cardType, setCardType] = useState<CreditCardType | null>(null);
-
-  const ccFormSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    ccNumber: z.string().refine(validator.isCreditCard, "Invalid Credit Card"),
-    ccExp: z.string().regex(/^(0?[1-9]|1[0-2])\/(\d{1,2})$/),
-    ccCVV: z
-      .string()
-      .length(
-        cardType?.code.size ?? 3,
-        `Invalid ${cardType?.code.name ?? "CVV"}`
-      ),
-  });
-
-  const onSubmit = () => {
-    ccForm.clearErrors();
-    billingAddressForm.clearErrors();
-    ccForm.validate();
-    billingAddressForm.validate();
-
-    if (!ccForm.isValid() || !billingAddressForm.isValid()) {
-      return;
-    }
-
-    mbsContext.setLoading(true);
-    setIpBooking(null);
-    setTimeout(() => {
-      mbsContext.setLoading(false);
-      navigate("/");
-    }, 10000);
-  };
-
-  const ccForm = useForm({
-    mode: "uncontrolled",
-    validate: zodResolver(ccFormSchema),
-    initialValues: {
-      name: "",
-      ccNumber: "",
-      ccExp: "",
-      ccCVV: "",
-    },
-    validateInputOnBlur: true,
-  });
-
-  const debouncedCardChange = useDebouncedCallback(
-    ({ value, touched }: { value: string; touched: boolean }) => {
-      if (touched && value.length > 2) {
-        const ccType = creditCardType(value.replace(/\s/g, ""));
-
-        if (ccType[0]) {
-          if (cardType?.type !== ccType[0].type) {
-            ccForm.clearFieldError("ccCVV");
-            ccForm.clearFieldError("ccExp");
-          }
-          setCardType(ccType[0]);
-        } else {
-          setCardType(null);
-        }
-      } else {
-        setCardType(null);
-      }
-    },
-    1000
-  );
-
-  ccForm.watch("ccNumber", debouncedCardChange);
-
-  const [ipBooking, setIpBooking] = useLocalStorage<InProgressBooking | null>({
-    key: "mbs_ipBooking",
-    defaultValue: null,
-  });
-
-  useEffect(() => {
-    if (!ipBooking) {
-      mbsContext.setLoading(true);
-      const timeout = setTimeout(() => {
-        navigate("/");
-      }, 10000);
-      return () => clearTimeout(timeout);
-    } else {
-      mbsContext.setLoading(false);
-    }
-  }, [ipBooking]);
-
-  return (
-    <Container
-      pt="lg"
-      pb="lg"
-      fluid
-      w={{
-        base: "100%",
-        lg: "70vw",
-      }}
-    >
-      <Flex
-        direction={{
-          base: "column-reverse",
-          md: "row",
-        }}
-        gap="md"
-        w="100%"
-        mih="100%"
-      >
-        <Paper
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-          }}
-          flex={4}
-          shadow="xs"
-          p={{
-            base: "md",
-            sm: "xl",
-            xs: "lg",
-          }}
-          radius="lg"
-          h={{ base: "auto", md: "fit-content" }}
-          withBorder
-        >
-          {!(isSmall ?? true) && <Title order={1}>Checkout</Title>}
-          <form>
+<form>
             <Title order={3} pb="sm">
               Billing address
             </Title>
@@ -291,7 +153,6 @@ export const Checkout = () => {
                   label="State"
                   withAsterisk
                   placeholder="State"
-                  useShortLabelMode
                   key={billingAddressForm.key("state")}
                   {...billingAddressForm.getInputProps("state")}
                   className="take-1-3 split"
@@ -318,18 +179,7 @@ export const Checkout = () => {
               )}
             </div>
           </form>
-          <Divider />
-          <form>
-            <Group justify="space-between" align="center" pb="sm">
-              <Title order={3}>Payment info</Title>
-              <Group gap={3}>
-                <Visa width="2rem" />
-                <Mastercard width="2rem" />
-                <Amex width="2rem" />
-                <Discover width="2rem" />
-              </Group>
-            </Group>
-            <div className="checkout-form">
+<div className="checkout-form">
               <TextInput
                 label="Full Name"
                 withAsterisk
@@ -368,20 +218,110 @@ export const Checkout = () => {
                 className="take-1 split"
               />
             </div>
-          </form>
 
-          <div style={{ display: "flex" }}>
-            <Button
-              fullWidth
-              mt="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                onSubmit();
-              }}
-            >
-              Submit
-            </Button>
-          </div>
+
+*/
+
+const PaymentForm = () => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    const result = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: "http://localhost:5173/checkout/complete",
+      },
+      redirect: "if_required",
+    });
+
+    if (result.error) {
+      showErrorModal(
+        result.error.message ?? "There was an error processing the payment",
+        () => {}
+      );
+    } else {
+      localStorage.removeItem("mbs_ipBooking");
+      navigate("/success");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Title order={3}>Billing address</Title>
+      <AddressElement options={{ mode: "billing" }} />
+      <Divider mt="md" mb="md" />
+      <Title order={3}>Payment info</Title>
+      <PaymentElement />
+      <div style={{ display: "flex" }}>
+        <Button fullWidth mt="sm" type="submit">
+          Submit
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+export const Checkout = () => {
+  const navigate = useNavigate();
+  const theme = useMantineTheme();
+  const isSmall = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+  const [ipBooking, setIpBooking] = useState<InProgressBooking | null>(null);
+
+  useEffect(() => {
+    const orderString = localStorage.getItem("mbs_ipBooking");
+    if (orderString) {
+      setIpBooking(JSON.parse(orderString) as InProgressBooking);
+    } else {
+      navigate("/");
+    }
+  }, []);
+
+  return (
+    <Container
+      pt="lg"
+      pb="lg"
+      fluid
+      w={{
+        base: "100%",
+        lg: "70vw",
+      }}
+    >
+      <Flex
+        direction={{
+          base: "column-reverse",
+          md: "row",
+        }}
+        gap="md"
+        w="100%"
+        mih="100%"
+      >
+        <Paper
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+          flex={4}
+          shadow="xs"
+          p={{
+            base: "md",
+            sm: "xl",
+            xs: "lg",
+          }}
+          radius="lg"
+          h={{ base: "auto", md: "fit-content" }}
+          withBorder
+        >
+          {!(isSmall ?? true) && <Title order={1}>Checkout</Title>}
+          <PaymentForm />
         </Paper>
 
         <Stack flex={3}>
