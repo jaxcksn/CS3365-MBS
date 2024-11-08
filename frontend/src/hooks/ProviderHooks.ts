@@ -18,6 +18,8 @@ export interface MBSContextType {
   setIsDebug: (debug: boolean) => void;
   isMockMode: boolean;
   setIsMockMode: (mock: boolean) => void;
+  isMockPayment: boolean;
+  setIsMockPayment: (mock: boolean) => void;
 }
 
 export const MBSContext = createContext<MBSContextType | undefined>(undefined);

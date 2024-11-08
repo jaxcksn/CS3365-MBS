@@ -24,6 +24,29 @@ export interface AppHeaderProps {
   setValue?: (value: string) => void;
 }
 
+const DevSettings = () => {
+  const mbs = useMBS();
+  return (
+    <>
+      <Checkbox
+        label="Enable Debug Notifications"
+        checked={mbs.isDebug}
+        onChange={(event) => mbs.setIsDebug(event.currentTarget.checked)}
+      />
+      <Checkbox
+        label="Enable Mock Payments"
+        checked={mbs.isMockPayment}
+        onChange={(event) => mbs.setIsMockPayment(event.currentTarget.checked)}
+      />
+      <Checkbox
+        label="Enable Mock Mode"
+        checked={mbs.isMockMode}
+        onChange={(event) => mbs.setIsMockMode(event.currentTarget.checked)}
+      />
+    </>
+  );
+};
+
 export const AppHeader = (props: AppHeaderProps) => {
   const auth = useAuth();
   const mbs = useMBS();
@@ -94,19 +117,28 @@ export const AppHeader = (props: AppHeaderProps) => {
         <NavLink
           label="Home"
           leftSection={<i className="bi bi-house" />}
-          onClick={() => navigate("/")}
+          onClick={() => {
+            navigate("/");
+            mbs.closeOptions();
+          }}
           active={window.location.pathname === "/"}
         />
         <NavLink
           label="My Tickets"
           leftSection={<i className="bi bi-ticket-perforated" />}
-          onClick={() => navigate("/my-tickets")}
+          onClick={() => {
+            navigate("/my-tickets");
+            mbs.closeOptions();
+          }}
           active={window.location.pathname === "/my-tickets"}
         />
         <NavLink
           label="Logout"
           leftSection={<i className="bi bi-box-arrow-right" />}
-          onClick={auth.logout}
+          onClick={() => {
+            auth.logout();
+            mbs.closeOptions();
+          }}
         />
 
         <>
@@ -114,18 +146,7 @@ export const AppHeader = (props: AppHeaderProps) => {
             Developer Settings
           </Title>
           <Stack>
-            <Checkbox
-              label="Enable Debug Notifications"
-              checked={mbs.isDebug}
-              onChange={(event) => mbs.setIsDebug(event.currentTarget.checked)}
-            />
-            <Checkbox
-              label="Enable Mock Mode"
-              checked={mbs.isMockMode}
-              onChange={(event) =>
-                mbs.setIsMockMode(event.currentTarget.checked)
-              }
-            />
+            <DevSettings />
           </Stack>
         </>
       </Drawer>

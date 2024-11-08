@@ -11,7 +11,7 @@ from typing import Annotated
 from fastapi.middleware.cors import CORSMiddleware
 from .util import DB
 from .dependencies import auth, admin
-from .routers import administrator, users, movies
+from .routers import administrator, users, movies, payment
 
 # ---------------------------------------------------------------------------- #
 #                             Server Initialization                            #
@@ -24,6 +24,7 @@ app = FastAPI()
 app.include_router(users.router)
 app.include_router(movies.router)
 app.include_router(administrator.router)
+app.include_router(payment.router)
 
 # CORS
 app.add_middleware(
