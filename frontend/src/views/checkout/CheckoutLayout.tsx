@@ -33,6 +33,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
             throw new Error("No client secret in payment intent");
           }
         } catch {
+          setLoading(false);
           navigate("/");
           showErrorModal(
             "Could not create order, redirecting to home.",
@@ -40,6 +41,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
           );
         }
       } else {
+        setLoading(false);
         navigate("/");
         showErrorModal(
           "Could not load checkout screen, in-progress order was not found, redirecting to home.",
@@ -72,7 +74,9 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
 
         setLoading(false);
       } else {
+        setLoading(false);
         navigate("/");
+        console.error("No in-progress order found, redirecting to home.");
         showErrorModal(
           "Could not load checkout screen, in-progress order was not found, redirecting to home.",
           () => {}
@@ -82,6 +86,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
 
     if (import.meta.env.VITE_STRIPE_API === undefined || mbs.isMockPayment) {
       if (!mbs.isMockPayment) {
+        console.error("Stripe API key not found, redirecting to home.");
         showErrorModal(
           "Stripe API key not found, redirecting to home." + APP_MODE === "DEV"
             ? "You can bypass this by turning on mock payment in the dev settings."

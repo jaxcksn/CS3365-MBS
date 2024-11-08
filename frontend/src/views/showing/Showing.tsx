@@ -55,8 +55,6 @@ export default function Showing() {
         "Invalid theater"
       ),
     time: z.string().refine((val) => {
-      console.log(movie?.showing.show_times);
-      console.log(val);
       return validator.isIn(val, movie?.showing.show_times ?? []);
     }, "Invalid time"),
   });
