@@ -7,6 +7,13 @@ WORKDIR /app
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
+# Declare the build argument
+ARG VITE_STRIPE_API
+
+# Make the argument an environment variable
+ENV VITE_STRIPE_API=${VITE_STRIPE_API}
+
+
 # Install the dependencies
 RUN npm install
 
