@@ -10,11 +10,11 @@
 <div align='center'>
 
 ![Frontend](https://flat.badgen.net/static/Frontend/React/blue)
-![Backend](https://flat.badgen.net/static/Backend/Flask/blue)
-![Database](https://flat.badgen.net/static/Database/MySQL/blue)
+![Backend](https://flat.badgen.net/static/Backend/FastAPI/cyan)
+![Database](https://flat.badgen.net/static/Database/MySQL/orange)
 
-![Build](https://flat.badgen.net/github/checks/jaxcksn/cs3365-mbs/main/build-frontend?label=Build)
-![CD](https://flat.badgen.net/github/checks/jaxcksn/cs3365-mbs/main/build-and-deploy?label=CD)
+![Build](https://flat.badgen.net/github/checks/jaxcksn/CS3365-MBS/main/Test%20Frontend%20Build?label=Test&cache=3600)
+![CD](https://flat.badgen.net/github/checks/jaxcksn/CS3365-MBS/main/Build%20for%20Staging%20Environment?label=CD&cache=3600)
 
 Monorepo for Team 12's CS3365 Group Project to create a movie booking system.
 
