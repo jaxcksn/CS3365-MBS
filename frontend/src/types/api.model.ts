@@ -79,6 +79,7 @@ export interface Ticket {
     poster_url: string;
     id: string;
   };
+  used: boolean;
 }
 
 export interface CreateBookingResponse {

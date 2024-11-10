@@ -1,4 +1,4 @@
-import { Button, Container, Flex } from "@mantine/core";
+import { Button, Container, Flex, Title } from "@mantine/core";
 import { useStripe } from "@stripe/react-stripe-js";
 import { PaymentIntent } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
@@ -16,21 +16,27 @@ export function CompleteSuccessScreen() {
         alignItems: "center",
       }}
     >
-      <Flex direction="column" align="center">
+      <Flex direction="column" align="center" gap={0}>
         <i
-          className="bi bi-check"
+          className="bi bi-check-circle-fill"
           style={{
-            fontSize: "9rem",
+            fontSize: "10rem",
             color: "green",
           }}
         />
-        <h2 id="status-text">
+        <Title
+          order={1}
+          id="status-text"
+          style={{ textAlign: "center" }}
+          mb="xl"
+        >
           Your payment was sucessful, and your tickets are ready.
-        </h2>
+        </Title>
         <Button
           onClick={() => {
             navigate("/my-tickets");
           }}
+          size="md"
         >
           Go to My Tickets
         </Button>

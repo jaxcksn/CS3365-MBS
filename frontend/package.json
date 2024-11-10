@@ -24,6 +24,7 @@
     "dayjs": "^1.11.13",
     "dinero.js": "^1.9.1",
     "mantine-form-zod-resolver": "^1.1.0",
+    "qrcode.react": "^4.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-flagkit": "^2.0.4",

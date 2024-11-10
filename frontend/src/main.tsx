@@ -33,6 +33,7 @@ import AppRoot from "./components/layout/AppRoot.tsx";
 import { ErrorModal } from "./components/modals.tsx";
 import Complete, { CompleteSuccessScreen } from "./views/checkout/Complete.tsx";
 import CheckoutLayout from "./views/checkout/CheckoutLayout.tsx";
+import MyTickets from "./views/mytickets/MyTickets.tsx";
 
 export const RedirectIfAuthenticated = ({
   children,
@@ -168,6 +169,16 @@ const router = createBrowserRouter([
       <ProtectedRoute>
         <AppRoot>
           <CompleteSuccessScreen />
+        </AppRoot>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/my-tickets",
+    element: (
+      <ProtectedRoute>
+        <AppRoot>
+          <MyTickets />
         </AppRoot>
       </ProtectedRoute>
     ),

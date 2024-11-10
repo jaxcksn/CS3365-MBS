@@ -112,6 +112,7 @@ class MockService {
         date: new Date("2024-10-20"),
         time: "9:00AM",
         theater: "LUB",
+        used: false,
         movie: {
           title: "The Wild Robot",
           poster_url:
@@ -126,6 +127,7 @@ class MockService {
         date: new Date("2024-10-25"),
         time: "2:00PM",
         theater: "LUB",
+        used: true,
         movie: {
           title: "Joker: Folie à Deux",
           poster_url:
