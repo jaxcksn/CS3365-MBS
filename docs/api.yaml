@@ -212,6 +212,8 @@ paths:
                       type: number
                       x-stoplight:
                         id: xklbgdy8yhk1t
+                    used:
+                      type: boolean
       operationId: get-user-bookings
       x-stoplight:
         id: tj9ejzdot2uzf

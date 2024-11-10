@@ -1,0 +1,4 @@
+use `mbs`;
+
+ALTER TABLE `Ticket`
+ADD COLUMN `used` BOOLEAN NOT NULL DEFAULT FALSE;

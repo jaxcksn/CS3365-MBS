@@ -1,0 +1,6 @@
+.ticket-card {
+  @mixin hover {
+    filter: brightness(0.95);
+    transition: filter 0.1s;
+  }
+}
