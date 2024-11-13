@@ -40,7 +40,8 @@ async def create_payment_intent(body: OrderInfo, user_id: str = Depends(auth)):
         print("Stripe API not configured! Payment processing will not work properly.")
         raise HTTPException(status_code=501, detail="Stripe API not configured")
     result = await DB.queryOne(
-        "SELECT * FROM `Showing` WHERE `movie` = :movieId", {"movieId": body.movieId}
+        "SELECT * FROM `MovieShowing` WHERE `id` = :movieId",
+        {"movieId": body.movieId},
     )
     if not result:
         raise HTTPException(status_code=404, detail="Movie not found")
@@ -53,7 +54,6 @@ async def create_payment_intent(body: OrderInfo, user_id: str = Depends(auth)):
             metadata={
                 "user_id": user_id,
                 "movie_id": body.movieId,
-                "showing_id": result["id"],
                 "movie_name": body.movieName,
                 "theater": body.theater,
                 "time": body.time,
@@ -112,7 +112,7 @@ async def stripe_webhook(request: Request):
                 """,
                 {
                     "id": newId(),
-                    "showing": metadata["showing_id"],
+                    "showing": metadata["movie_id"],
                     "user": metadata["user_id"],
                     "quantity": metadata["quantity"],
                     "date": datetime.strptime(

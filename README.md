@@ -35,7 +35,7 @@ Monorepo for Team 12's CS3365 Group Project to create a movie booking system.
 4. [Contributing](#contributing)
    1. [Branching](#branching)
    2. [Pull Requests](#pull-requests)
-   3. [Code Reivew](#code-review)
+   3. [Code Review](#code-review)
    4. [Continuous Deployment](#cd)
 
 ## Software Requirements
