@@ -2,19 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Check Database",
-      "type": "shell",
-      "command": "nc -zv localhost 3306 || (echo 'Database could not be found, please run `docker compose up -d` in the dev-compose folder before starting the backend.' && exit 1)",
-      "problemMatcher": [],
-      "windows": {
-        "command": "powershell -Command \"if (!(Test-NetConnection -ComputerName localhost -Port 3306 -InformationLevel Quiet)) { Write-Host 'Database is not running, please run docker compose up -d in the dev-compose folder before starting the backend.'; exit 1 }\""
-      },
-      "icon": {
-        "id": "database",
-        "color": "terminal.ansiYellow"
-      }
-    },
-    {
       "label": "PIP Install",
       "type": "shell",
       "options": {
