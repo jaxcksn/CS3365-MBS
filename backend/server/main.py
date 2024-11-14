@@ -83,6 +83,6 @@ async def health_check(response: Response):
         
         # Raise HTTPException with a 500 status code and an error message
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"status": "unhealthy", "error": "Backend or database connection failed"}
+            status_code=200,
+            detail={"database": False, "api": True, "error": str(e)}
         )
