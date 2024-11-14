@@ -75,7 +75,7 @@ async def health_check(response: Response):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         
         # Return a JSON response indicating the backend is healthy
-        return {"status": "healthy", "message": "Backend and database are operational"}
+        return {"backend": True, "api": True}
 
     except Exception as e:
         # Set Cache-Control header to prevent caching in case of error
