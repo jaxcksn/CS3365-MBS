@@ -6,8 +6,7 @@ from ..dependencies import auth, admin
 
 router = APIRouter()
 
-# Temporary in-memory storage for reviews
-reviews_store = {}
+
 
 # ---------------------------------------------------------------------------- #
 #                                    Models                                    #
@@ -15,7 +14,7 @@ reviews_store = {}
 class CreateMovieReviewRequest(BaseModel):
     movie_id: str
     rating: int = Field(..., ge=1, le=5, description="Rating from 1 to 5")
-    content: Optional[str] = Field(None, max_length=250, description="Optional content about the movie")
+    content: str = Field(..., max_length=250, description="Content about the movie (required)")
     
 
 # ---------------------------------------------------------------------------- #
@@ -29,35 +28,44 @@ class CreateMovieReviewRequest(BaseModel):
 @router.get("/movies")
 async def movies(user_id: str = Depends(auth)):
     results = await DB.query(
-        "SELECT `id`, `title`, `release_date` AS `showings_start`, `poster_url` FROM `MovieShowing`"
+        "SELECT id, title, release_date as showings_start, poster_url FROM MovieShowing"
     )
-    # Check for existing reviews for each movie in the results for this user
-    for movie in results:
-        review_key = f"{user_id}:{movie['id']}"
-        movie["user_review"] = reviews_store.get(review_key)
     return results
+
+
 
 @router.post("/movie/review", status_code=200)
 async def create_movie_review(
     review: CreateMovieReviewRequest,
     user_id: str = Depends(auth),
 ):
-    # Create a unique key to identify a review by this user for this movie
-    review_key = f"{user_id}:{review.movie_id}"
-
-    # Check if the user has already reviewed this movie
-    if review_key in reviews_store:
+    # Check if the user has already reviewed the movie
+    checkForReview = await DB.queryOne(
+        "SELECT * FROM `Review` WHERE `user` = :user_id AND `movie` = :movie_id",
+        {"user_id": user_id, "movie_id": review.movie_id},
+    )
+    
+    # If a review already exists, return a conflict error
+    if checkForReview is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You have already reviewed this movie."
         )
+    
+    # Generate a unique ID for the new review
+    new_review_id = newId("short")  # Use your newId function to generate a unique review ID
 
-    # If not, add the review to the temporary in-memory storage
-    reviews_store[review_key] = {
-        "movie_id": review.movie_id,
-        "user_id": user_id,
-        "rating": review.rating,
-        "content": review.content
-    }
+    # Insert the new review into the Review table
+    await DB.execute(
+        "INSERT INTO `Review` (`id`, `rating`, `text`, `created`, `user`, `movie`) "
+        "VALUES (:id, :rating, :text, NOW(), :user, :movie)",
+        {
+            "id": new_review_id,
+            "rating": review.rating,  # The rating submitted by the user
+            "text": review.content,  # The review content
+            "user": user_id,  # The user who is submitting the review
+            "movie": review.movie_id,  # The movie being reviewed
+        }
+    )
 
-    return {"message": "Review submitted successfully", "review": reviews_store[review_key]}
+    return {"message": "Review submitted successfully"}
