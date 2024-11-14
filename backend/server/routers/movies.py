@@ -53,7 +53,7 @@ async def create_movie_review(
         )
     
     # Generate a unique ID for the new review
-    new_review_id = newId("short")  # Use your newId function to generate a unique review ID
+    new_review_id = newId()  # Use your newId function to generate a unique review ID
 
     # Insert the new review into the Review table
     await DB.execute(
