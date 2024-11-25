@@ -27,6 +27,8 @@ class LoginInfo(BaseModel):
     password: str
 
 
+
+
 # ---------------------------------------------------------------------------- #
 #                                    Routes                                    #
 # ---------------------------------------------------------------------------- #
@@ -120,3 +122,73 @@ def refresh(
 def logout(response: Response):
     response.delete_cookie(key="refresh_token")
     return {"message": "User logged out successfully"}
+
+@router.get("/user/bookings",status_code=200)
+async def get_user_bookings(user: str = Depends(auth)):
+    """
+    Get bookings for the logged-in user in the required format.
+    """
+    try:
+        # Query the database for user bookings
+        bookings = await DB.query(
+            """
+            SELECT 
+                t.id AS ticket_id,
+                t.date,
+                t.time,
+                t.quantity,
+                m.title AS movie_title,
+                t.theater,
+                t.showing,
+                t.used,
+                m.id AS movie_id,
+                m.description,
+                m.runtime,
+                m.maturity_rating,
+                m.cast,
+                m.release_date,
+                m.poster_url,
+                m.start_date,
+                m.end_date,
+                m.times,
+                m.seat_price AS cost
+            FROM Ticket t
+            JOIN MovieShowing m ON t.showing = m.id
+            WHERE t.user=:user_id""",
+            {"user_id": user},
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving bookings: {str(err)}",
+        )
+
+    # Map the database rows to the required response format
+    if not bookings:
+        return []
+    return [
+        {
+            "id"        : booking["ticket_id"],
+            "date"      : booking["date"],
+            "time"      : booking["time"],
+            "seats"     : booking["quantity"],
+            "cost"      : booking["cost"],
+            "used"      : booking["used"],
+            "movie"     : { "movie_id"          : booking["movie_id"],
+                            "title"             : booking["movie_title"],
+                            "description"       : booking["description"],
+                            "runtime"           : booking["runtime"],
+                            "maturity_rating"   : booking["maturity_rating"],
+                            "cast"              : booking["cast"],
+                            "date"              : booking["date"],
+                            "release_date"      : booking["release_date"],
+                            "poster_url"        : booking["poster_url"],
+                            "start_date"        : booking["start_date"],
+                            "end_date"          : booking["end_date"],
+                            "times"             : booking["times"],
+                            "cost"              : booking["cost"]
+                            },
+            "theater"   : booking["theater"],
+        }
+                for booking in bookings
+    ]
