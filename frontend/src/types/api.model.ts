@@ -1,6 +1,7 @@
 export interface LoginResponse {
   access_token: string;
   expires: Date;
+  role: string;
 }
 
 export interface RegisterRequest {
@@ -16,7 +17,7 @@ export interface Movie {
   showings_start: string;
 }
 
-export interface MovieShowing {
+export interface Showing {
   start_date: Date;
   end_date: Date;
   show_times: string[];
@@ -40,7 +41,7 @@ export interface MovieInformation {
   poster_url: string;
   reviews: MovieReview[];
   did_review: boolean;
-  showing: MovieShowing;
+  showing: Showing;
 }
 
 export interface AdminShowing {

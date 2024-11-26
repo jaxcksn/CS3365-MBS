@@ -132,6 +132,17 @@ export const AppHeader = (props: AppHeaderProps) => {
           }}
           active={window.location.pathname === "/my-tickets"}
         />
+        {auth.role === "admin" && (
+          <NavLink
+            label="Admin"
+            leftSection={<i className="bi bi-sliders" />}
+            onClick={() => {
+              navigate("/admin");
+              mbs.closeOptions();
+            }}
+            active={window.location.pathname === "/admin"}
+          />
+        )}
         <NavLink
           label="Logout"
           leftSection={<i className="bi bi-box-arrow-right" />}
@@ -140,7 +151,6 @@ export const AppHeader = (props: AppHeaderProps) => {
             mbs.closeOptions();
           }}
         />
-
         <>
           <Title order={4} mt="sm" mb="sm">
             Developer Settings

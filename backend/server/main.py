@@ -61,28 +61,32 @@ def protected_route(user_id: str = Depends(auth)):
 def admin_route(user_id: str = Depends(admin)):
     return {"message": "This is an admin route!!!! You are an admin."}
 
+
 # ---------------------------------------------------------------------------- #
 #                                Health Check                                  #
 # ---------------------------------------------------------------------------- #
+
 
 @app.get("/health", status_code=200)
 async def health_check(response: Response):
     try:
         # Perform a quick database query to check connectivity
         await DB.queryOne("SELECT 1")
-        
+
         # Set Cache-Control header to prevent caching
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, max-age=0"
+        )
         # Return a JSON response indicating the backend is healthy
-        return {"backend": True, "api": True}
+        return {"database": True, "api": True}
 
     except Exception as e:
         # Set Cache-Control header to prevent caching in case of error
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, max-age=0"
+        )
+
         # Raise HTTPException with a 500 status code and an error message
         raise HTTPException(
-            status_code=200,
-            detail={"database": False, "api": True, "error": str(e)}
+            status_code=200, detail={"database": False, "api": True, "error": str(e)}
         )

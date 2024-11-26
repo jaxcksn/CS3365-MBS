@@ -81,6 +81,7 @@ class ApiService {
     return {
       access_token: response.data.access_token,
       expires: new Date(response.data.expires),
+      role: response.data.role,
     };
   }
 
@@ -128,6 +129,14 @@ class ApiService {
         id,
       },
     });
+    return response.data;
+  }
+
+  public async getHealth(): Promise<{
+    backend: boolean;
+    database: boolean;
+  }> {
+    const response = await this.api.get("/health", {});
     return response.data;
   }
 
