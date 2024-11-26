@@ -58,7 +58,7 @@ async def login(
     response: Response,
 ):
     result = await DB.queryOne(
-        "SELECT id, password FROM `User` WHERE email=:username",
+        "SELECT id, password, role FROM `User` WHERE email=:username",
         {"username": body.email},
     )
     if not result:
@@ -78,13 +78,14 @@ async def login(
             return {
                 "access_token": access[0],
                 "expires": datetime.datetime.fromtimestamp(access[1]),
+                "role": result["role"],
             }
         else:
             raise HTTPException(status_code=401, detail="Invalid password")
 
 
 @router.post("/user/refresh")
-def refresh(
+async def refresh(
     response: Response,
     refresh_token: Annotated[str | None, Cookie()] = None,
 ):
@@ -100,6 +101,9 @@ def refresh(
             return {"error": "Refresh token expired"}
         access = generate_access_token(user_id)
         refresh = generate_refresh_token(user_id)
+        roleResult = await DB.queryOne(
+            "SELECT role FROM `User` WHERE id=:id", {"id": user_id}
+        )
 
         response.set_cookie(
             key="refresh_token", value=refresh[0], httponly=True, expires=refresh[1]
@@ -107,6 +111,7 @@ def refresh(
         return {
             "access_token": access[0],
             "expires": datetime.datetime.fromtimestamp(access[1]),
+            "role": roleResult["role"],
         }
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=400, detail="Refresh token has expired")
