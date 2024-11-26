@@ -39,6 +39,7 @@ export interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  role: string;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

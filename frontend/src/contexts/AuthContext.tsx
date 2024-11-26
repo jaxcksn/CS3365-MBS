@@ -3,6 +3,7 @@ import apiService from "../services/apiService";
 
 import { ReactNode } from "react";
 import { AuthContext } from "../hooks/ProviderHooks";
+import { useLocalStorage } from "@mantine/hooks";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -11,38 +12,49 @@ interface AuthProviderProps {
 const noRefreshPaths = new Set(["/login", "/signup"]);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [expires, setExpires] = useState<Date | null>(null);
+  const [accessToken, setAccessToken] = useLocalStorage<string | null>({
+    key: "mbs_access_token",
+    defaultValue: null,
+  });
+  const [expires, setExpires] = useLocalStorage<Date | null>({
+    key: "mbs_expires",
+    defaultValue: null,
+  });
+  const [role, setRole] = useLocalStorage<string>({
+    key: "mbs_role",
+    defaultValue: "",
+  });
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
-  const saveAuthData = (token: string, expiration: Date) => {
-    localStorage.setItem("accessToken", token);
-    localStorage.setItem("expires", expiration.toString());
+  const saveAuthData = (token: string, expiration: Date, userRole: string) => {
     setAccessToken(token);
     setExpires(new Date(expiration));
+    setRole(userRole);
     apiService.setAccessToken(token);
     setIsLoggedIn(true);
   };
 
   const clearAuthData = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("expires");
     setAccessToken(null);
     setExpires(null);
+    setRole("");
+    localStorage.removeItem("mbs_access_token");
+    localStorage.removeItem("mbs_expires");
+    localStorage.removeItem("mbs_role");
     apiService.setAccessToken(null);
     setIsLoggedIn(false);
   };
 
   useEffect(() => {
     const checkLoggedIn = async () => {
-      const token = localStorage.getItem("accessToken");
-      const expiration = localStorage.getItem("expires");
-
-      if (expiration && token && new Date() < new Date(expiration)) {
-        setExpires(new Date(expiration));
-        setAccessToken(token);
-        apiService.setAccessToken(token);
+      if (
+        expires &&
+        accessToken &&
+        role !== "" &&
+        new Date() < new Date(expires)
+      ) {
+        apiService.setAccessToken(accessToken);
         setIsLoggedIn(true);
         setLoading(false);
         return;
@@ -53,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (!noRefreshPaths.has(window.location.pathname)) {
           const result = await apiService.refresh();
           if (result.access_token) {
-            saveAuthData(result.access_token, result.expires);
+            saveAuthData(result.access_token, result.expires, result.role);
           } else {
             clearAuthData();
           }
@@ -70,12 +82,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (accessToken && expires) {
-      const refreshTime = expires.getTime() - Date.now() - 60000;
+      const refreshTime = new Date(expires).getTime() - Date.now() - 60000;
       const timeoutId = setTimeout(async () => {
         try {
           const result = await apiService.refresh();
           if (result.access_token) {
-            saveAuthData(result.access_token, result.expires);
+            saveAuthData(result.access_token, result.expires, result.role);
           } else {
             clearAuthData();
           }
@@ -91,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = useCallback(async (email: string, password: string) => {
     const result = await apiService.login(email, password);
     if (result.access_token) {
-      saveAuthData(result.access_token, result.expires);
+      saveAuthData(result.access_token, result.expires, result.role);
     }
   }, []);
 
@@ -109,8 +121,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       loading,
       login,
       logout,
+      role,
     }),
-    [accessToken, isLoggedIn, loading, login, logout]
+    [accessToken, isLoggedIn, loading, login, logout, role]
   );
 
   return (

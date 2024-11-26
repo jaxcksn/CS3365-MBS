@@ -34,6 +34,8 @@ import { ErrorModal } from "./components/modals.tsx";
 import Complete, { CompleteSuccessScreen } from "./views/checkout/Complete.tsx";
 import CheckoutLayout from "./views/checkout/CheckoutLayout.tsx";
 import MyTickets from "./views/mytickets/MyTickets.tsx";
+import AdminDashboard from "./views/admin/AdminDashboard.tsx";
+import AdminAddEdit from "./views/admin/AdminAddEdit.tsx";
 
 export const RedirectIfAuthenticated = ({
   children,
@@ -88,6 +90,15 @@ const theme = createTheme({
   },
   primaryColor: "myColor",
 });
+
+const adminLoader = async () => {
+  const role = JSON.parse(localStorage.getItem("mbs_role") ?? "");
+  if (role && role === "admin") {
+    return null;
+  } else {
+    throw new Response("Forbidden", { status: 403 });
+  }
+};
 
 const router = createBrowserRouter([
   {
@@ -182,6 +193,38 @@ const router = createBrowserRouter([
         </AppRoot>
       </ProtectedRoute>
     ),
+  },
+  {
+    path: "/admin",
+    loader: adminLoader,
+    element: (
+      <ProtectedRoute>
+        <AppRoot>
+          <Outlet />
+        </AppRoot>
+      </ProtectedRoute>
+    ),
+    errorElement: (
+      <ErrorMessage
+        code={403}
+        shortMessage="Forbidden"
+        longMessage="You are not authorized to access this page."
+      />
+    ),
+    children: [
+      {
+        path: "",
+        element: <AdminDashboard />,
+      },
+      {
+        path: "showing/add",
+        element: <AdminAddEdit mode="add" />,
+      },
+      {
+        path: "showing/:id",
+        element: <AdminAddEdit mode="edit" />,
+      },
+    ],
   },
 ]);
 
