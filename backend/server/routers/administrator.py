@@ -19,3 +19,5 @@ router = APIRouter()
 async def admin_test_route(user_id: str = Depends(admin)):
     admins = await DB.query("SELECT * FROM `User` WHERE role='admin'")
     return admins
+
+
