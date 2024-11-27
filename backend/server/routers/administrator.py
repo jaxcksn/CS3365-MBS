@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from ..util import DB, newId
 from ..dependencies import auth, admin
@@ -90,4 +90,4 @@ async def add_showing(
 
         return {"message": "Showing added successfully", "id": movie_id}
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
