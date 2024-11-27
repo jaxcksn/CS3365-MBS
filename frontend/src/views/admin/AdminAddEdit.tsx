@@ -2,7 +2,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useMBS } from "../../hooks/ProviderHooks";
 import mockService from "../../services/mockService";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import apiService from "../../services/apiService";
 import { MovieInformation } from "../../types/api.model";
 import {
@@ -82,6 +82,7 @@ const SelectShowtimes = ({ times }: { times: Map<string, boolean> }) => {
 
 const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
   setBodyColor({ color: "var(--mantine-body-color)" });
+  const navigate = useNavigate();
 
   const mbs = useMBS();
   const { id } = useParams();
@@ -131,23 +132,10 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
       values.runtime % 60
     }m`;
 
-    if (mode === "add") {
-      await apiService.adminCreateShowing({
-        title: values.title,
-        description: values.description,
-        runtime,
-        cast: values.cast,
-        release_date: values.release_date,
-        poster_url: values.poster_url,
-        price: values.price,
-        times: showTimes,
-        showing_start: values.date_range[0],
-        showing_end: values.date_range[1],
-      });
-    } else {
-      if (id) {
-        await apiService.adminUpdateShowing({
-          id: id,
+    mbs.setLoading(true);
+    try {
+      if (mode === "add") {
+        await apiService.adminCreateShowing({
           title: values.title,
           description: values.description,
           runtime,
@@ -159,7 +147,28 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
           showing_start: values.date_range[0],
           showing_end: values.date_range[1],
         });
+      } else {
+        if (id) {
+          await apiService.adminUpdateShowing({
+            id: id,
+            title: values.title,
+            description: values.description,
+            runtime,
+            cast: values.cast,
+            release_date: values.release_date,
+            poster_url: values.poster_url,
+            price: values.price,
+            times: showTimes,
+            showing_start: values.date_range[0],
+            showing_end: values.date_range[1],
+          });
+        }
       }
+      mbs.setLoading(false);
+      navigate("/admin", { replace: true });
+    } catch {
+      mbs.setLoading(false);
+      console.error("Failed to create or update movie");
     }
   };
 

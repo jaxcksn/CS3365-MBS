@@ -117,3 +117,24 @@ async def add_showing(
         return {"message": "Showing added successfully", "id": movie_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/admin/showing")
+async def delete_showing(id: str, user_id: str = Depends(admin)):
+    try:
+        await DB.execute(
+            "DELETE FROM `Review` WHERE `movie` = :id",
+            {"id": id},
+        )
+        await DB.execute(
+            "DELETE FROM `Ticket` WHERE `showing` = :id",
+            {"id": id},
+        )
+        await DB.execute(
+            "DELETE FROM `MovieShowing` WHERE `id` = :id",
+            {"id": id},
+        )
+
+        return {"message": "Showing deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
