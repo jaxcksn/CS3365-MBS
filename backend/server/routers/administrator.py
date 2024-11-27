@@ -53,6 +53,32 @@ def convert_time_to_minutes(time_str: str) -> int:
     return total_minutes
 
 
+@router.get("/admin/showings")
+async def get_showings(user_id: str = Depends(admin)):
+    try:
+        showings = await DB.query(
+            "SELECT id, title, poster_url, seat_price, release_date FROM `MovieShowing`"
+        )
+
+        admin_showings = []
+        for showing in showings:
+            admin_showings.append(
+                {
+                    "movie": {
+                        "title": showing["title"],
+                        "poster_url": showing["poster_url"],
+                    },
+                    "id": showing["id"],
+                    "price": showing["seat_price"],
+                    "release_date": showing["release_date"],
+                }
+            )
+
+        return admin_showings
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/admin/showing")
 async def add_showing(
     body: AddShowingRequest,  # Pydantic model for validation
