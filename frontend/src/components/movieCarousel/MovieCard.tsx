@@ -26,7 +26,8 @@ export default function MovieCard(props: MovieCardProps) {
               ? (props.movie.poster_url ??
                 "https://source.unsplash.com/random/414x620")
               : (props.movie.mobile_poster_url ??
-                "https://source.unsplash.com/random/1920x1080")
+                props.movie.poster_url ??
+                "https://source.unsplash.com/random/414x620")
           })`,
           backgroundSize: "cover",
           backgroundPosition: "center",
