@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { showErrorModal } from "../../utils/helpers";
+import setBodyColor, { showErrorModal } from "../../utils/helpers";
 import apiService from "../../services/apiService";
 import { InProgressBooking } from "../../contexts/MBSContext";
 import { LoadingOverlay } from "@mantine/core";
@@ -14,6 +14,7 @@ interface CheckoutLayoutProps {
 }
 
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
+  setBodyColor({ color: "var(--mantine-color-body)" });
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

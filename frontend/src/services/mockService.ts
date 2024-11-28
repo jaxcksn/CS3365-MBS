@@ -61,7 +61,7 @@ class MockService {
           start_date: new Date("2024-10-20"),
           end_date: new Date("2024-11-20"),
           show_times: ["9:00AM", "10:00AM", "2:00PM", "5:00PM"],
-          showing_id: "501nEOK16",
+          showing_id: "pP9XD1sQ2",
           price: 10.99,
         },
       };
@@ -72,7 +72,7 @@ class MockService {
         description:
           "After a shipwreck, an intelligent robot called Roz is stranded on an uninhabited island. To survive the harsh environment, Roz bonds with the island's animals and cares for an orphaned baby goose.",
         rating: 3.5,
-        runtime: "1hr 35min",
+        runtime: "1h35m",
         cast: "Lupita Nyong'o, Pedro Pascal, Kit Connor",
         release_date: new Date("2024-09-27"),
         poster_url:
@@ -93,8 +93,8 @@ class MockService {
         showing: {
           start_date: new Date("2024-10-20"),
           end_date: new Date("2024-11-20"),
-          show_times: ["9:00AM", "10:00AM", "2:00PM", "5:00PM"],
-          showing_id: "OR9yNVBQO",
+          show_times: ["9:00AM", "10:00AM"],
+          showing_id: "pP9XD1sQ2",
           price: 10.99,
         },
       };
@@ -155,7 +155,7 @@ class MockService {
           poster_url:
             "https://m.media-amazon.com/images/M/MV5BZjM2M2E3YzAtZDJjYy00MDhkLThiYmItOGZhNzQ3NTgyZmI0XkEyXkFqcGc@._V1_FMjpg_UY5000_.jpg",
         },
-        id: "OR9yNVBQO",
+        id: "Nz5lSa46Q",
         release_date: new Date("2024-09-27"),
         price: 10.99,
       },
@@ -165,7 +165,7 @@ class MockService {
           poster_url:
             "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
         },
-        id: "501nEOK16",
+        id: "pP9XD1sQ2",
         release_date: new Date("2024-10-01"),
         price: 10.99,
       },

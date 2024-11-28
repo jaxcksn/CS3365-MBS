@@ -756,6 +756,12 @@ paths:
                   type: string
                   x-stoplight:
                     id: 7p9e3chhadzhw
+                release_date:
+                  type: string
+                runtime:
+                  type: string
+                cast:
+                  type: string
                 showing_start:
                   type: string
                   x-stoplight:

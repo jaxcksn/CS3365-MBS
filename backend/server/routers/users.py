@@ -27,6 +27,8 @@ class LoginInfo(BaseModel):
     password: str
 
 
+
+
 # ---------------------------------------------------------------------------- #
 #                                    Routes                                    #
 # ---------------------------------------------------------------------------- #
@@ -58,7 +60,7 @@ async def login(
     response: Response,
 ):
     result = await DB.queryOne(
-        "SELECT id, password FROM `User` WHERE email=:username",
+        "SELECT id, password, role FROM `User` WHERE email=:username",
         {"username": body.email},
     )
     if not result:
@@ -78,13 +80,14 @@ async def login(
             return {
                 "access_token": access[0],
                 "expires": datetime.datetime.fromtimestamp(access[1]),
+                "role": result["role"],
             }
         else:
             raise HTTPException(status_code=401, detail="Invalid password")
 
 
 @router.post("/user/refresh")
-def refresh(
+async def refresh(
     response: Response,
     refresh_token: Annotated[str | None, Cookie()] = None,
 ):
@@ -100,6 +103,9 @@ def refresh(
             return {"error": "Refresh token expired"}
         access = generate_access_token(user_id)
         refresh = generate_refresh_token(user_id)
+        roleResult = await DB.queryOne(
+            "SELECT role FROM `User` WHERE id=:id", {"id": user_id}
+        )
 
         response.set_cookie(
             key="refresh_token", value=refresh[0], httponly=True, expires=refresh[1]
@@ -107,6 +113,7 @@ def refresh(
         return {
             "access_token": access[0],
             "expires": datetime.datetime.fromtimestamp(access[1]),
+            "role": roleResult["role"],
         }
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=400, detail="Refresh token has expired")
@@ -120,3 +127,73 @@ def refresh(
 def logout(response: Response):
     response.delete_cookie(key="refresh_token")
     return {"message": "User logged out successfully"}
+
+@router.get("/user/bookings",status_code=200)
+async def get_user_bookings(user: str = Depends(auth)):
+    """
+    Get bookings for the logged-in user in the required format.
+    """
+    try:
+        # Query the database for user bookings
+        bookings = await DB.query(
+            """
+            SELECT 
+                t.id AS ticket_id,
+                t.date,
+                t.time,
+                t.quantity,
+                m.title AS movie_title,
+                t.theater,
+                t.showing,
+                t.used,
+                m.id AS movie_id,
+                m.description,
+                m.runtime,
+                m.maturity_rating,
+                m.cast,
+                m.release_date,
+                m.poster_url,
+                m.start_date,
+                m.end_date,
+                m.times,
+                m.seat_price AS cost
+            FROM Ticket t
+            JOIN MovieShowing m ON t.showing = m.id
+            WHERE t.user=:user_id""",
+            {"user_id": user},
+        )
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving bookings: {str(err)}",
+        )
+
+    # Map the database rows to the required response format
+    if not bookings:
+        return []
+    return [
+        {
+            "id"        : booking["ticket_id"],
+            "date"      : booking["date"],
+            "time"      : booking["time"],
+            "seats"     : booking["quantity"],
+            "cost"      : booking["cost"],
+            "used"      : booking["used"],
+            "movie"     : { "movie_id"          : booking["movie_id"],
+                            "title"             : booking["movie_title"],
+                            "description"       : booking["description"],
+                            "runtime"           : booking["runtime"],
+                            "maturity_rating"   : booking["maturity_rating"],
+                            "cast"              : booking["cast"],
+                            "date"              : booking["date"],
+                            "release_date"      : booking["release_date"],
+                            "poster_url"        : booking["poster_url"],
+                            "start_date"        : booking["start_date"],
+                            "end_date"          : booking["end_date"],
+                            "times"             : booking["times"],
+                            "cost"              : booking["cost"]
+                            },
+            "theater"   : booking["theater"],
+        }
+                for booking in bookings
+    ]
