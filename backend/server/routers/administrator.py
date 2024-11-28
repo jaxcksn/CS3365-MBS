@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from ..util import DB, newId
 from ..dependencies import auth, admin
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 import json
 
@@ -35,6 +35,10 @@ class AddShowingRequest(BaseModel):
     showing_end: str  # End date of availability
     times: List[str]  # List of show times
     price: float  # Price per seat
+
+
+class EditShowingRequest(AddShowingRequest):
+    id: str  # ID of the movie showing to edit
 
 
 def convert_time_to_minutes(time_str: str) -> int:
@@ -115,6 +119,50 @@ async def add_showing(
         )
 
         return {"message": "Showing added successfully", "id": movie_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/admin/showing")
+async def edit_showing(
+    body: EditShowingRequest,
+    user_id: str = Depends(admin),
+):
+    try:
+        # Update the movie details in the MovieShowing table
+        runtime_in_minutes = convert_time_to_minutes(body.runtime)
+        await DB.execute(
+            """
+            UPDATE `MovieShowing`
+            SET
+                `title` = :title,
+                `description` = :description,
+                `runtime` = :runtime,
+                `cast` = :cast,
+                `release_date` = :release_date,
+                `poster_url` = :poster_url,
+                `start_date` = :showing_start,
+                `end_date` = :showing_end,
+                `times` = :times,
+                `seat_price` = :price
+            WHERE `id` = :id
+            """,
+            {
+                "id": body.id,
+                "title": body.title,
+                "description": body.description,
+                "runtime": runtime_in_minutes,
+                "cast": body.cast,
+                "release_date": datetime.fromisoformat(body.release_date),
+                "poster_url": body.poster_url,
+                "showing_start": datetime.fromisoformat(body.showing_start),
+                "showing_end": datetime.fromisoformat(body.showing_end),
+                "times": json.dumps(body.times),
+                "price": body.price,
+            },
+        )
+
+        return {"message": "Showing updated successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
