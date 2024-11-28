@@ -192,6 +192,7 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
         });
       } else if (id) {
         const movie = await apiService.getMovie(id);
+        console.log(movie);
         for (const time of movie.showing.show_times) {
           showtimes.set(time, true);
         }
@@ -199,11 +200,14 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
         form.setValues({
           title: movie.title,
           description: movie.description,
-          runtime: parseRuntimeString(movie.runtime),
+          runtime: Number(movie.runtime),
           cast: movie.cast,
           price: movie.showing.price,
-          release_date: movie.release_date,
-          date_range: [movie.showing.start_date, movie.showing.end_date],
+          release_date: new Date(movie.release_date),
+          date_range: [
+            new Date(movie.showing.start_date),
+            new Date(movie.showing.end_date),
+          ],
           poster_url: movie.poster_url,
         });
       }
