@@ -140,19 +140,22 @@ const AdminDashboard = () => {
     navigate("/admin/showing/add");
   };
 
-  const handleDelete = () => {
+  const handleDelete = (id: string) => {
     modals.openConfirmModal({
       title: "Are you sure?",
       children: (
         <Text>
-          This action can&apos;t be undone, and you will lose all data
-          associated with the showing.
+          This action can&apos;t be undone, and you will lose all data, tickets,
+          and reviews associated with the showing.
+          <br />
+          <br /> You should only do this if you are aware of the consequences.
         </Text>
       ),
       labels: { confirm: "Confirm", cancel: "Cancel" },
       onCancel: () => {},
       onConfirm: () => {
-        console.log("IMPLEMENT DELETE SHOWING");
+        apiService.adminDeleteShowing(id);
+        setShowings(showings.filter((showing) => showing.id !== id));
       },
     });
   };
@@ -271,7 +274,7 @@ const AdminDashboard = () => {
                     variant="filled"
                     size="lg"
                     aria-label="Delete"
-                    onClick={handleDelete}
+                    onClick={() => handleDelete(showing.id)}
                   >
                     <i className="bi bi-trash" />
                   </ActionIcon>
