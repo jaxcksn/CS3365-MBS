@@ -119,6 +119,7 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
         dayjs().utc().add(1, "month").toDate(),
       ],
       poster_url: "",
+      mobile_poster_url: "",
     },
   });
 
@@ -142,6 +143,7 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
           cast: values.cast,
           release_date: values.release_date,
           poster_url: values.poster_url,
+          mobile_poster_url: values.mobile_poster_url,
           price: values.price,
           times: showTimes,
           showing_start: values.date_range[0],
@@ -157,6 +159,7 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
             cast: values.cast,
             release_date: values.release_date,
             poster_url: values.poster_url,
+            mobile_poster_url: values.mobile_poster_url,
             price: values.price,
             times: showTimes,
             showing_start: values.date_range[0],
@@ -189,6 +192,7 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
           release_date: movie.release_date,
           date_range: [movie.showing.start_date, movie.showing.end_date],
           poster_url: movie.poster_url,
+          mobile_poster_url: movie.mobile_poster_url,
         });
       } else if (id) {
         const movie = await apiService.getMovie(id);
@@ -209,6 +213,7 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
             new Date(movie.showing.end_date),
           ],
           poster_url: movie.poster_url,
+          mobile_poster_url: movie.mobile_poster_url,
         });
       }
     };
@@ -300,6 +305,12 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
               placeholder="This will be shown everywhere"
               key={form.key("poster_url")}
               {...form.getInputProps("poster_url")}
+            />
+            <TextInput
+              label="Mobile Poster URL"
+              placeholder="This will be shown in mobile view"
+              key={form.key("mobile_poster_url")}
+              {...form.getInputProps("mobile_poster_url")}
             />
             <Input.Label required>Show Times</Input.Label>
             <SelectShowtimes times={showtimes} />

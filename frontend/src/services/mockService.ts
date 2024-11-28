@@ -55,6 +55,7 @@ class MockService {
         release_date: new Date("2024-10-01"),
         poster_url:
           "https://www.movieposters.com/cdn/shop/files/scan_79e10e79-5be5-487d-a01a-bf6e899bdcae_480x.progressive.jpg?v=1715268834",
+        mobile_poster_url: "https://source.unsplash.com/random/1920x1080",
         reviews: [],
         did_review: false,
         showing: {
@@ -77,6 +78,7 @@ class MockService {
         release_date: new Date("2024-09-27"),
         poster_url:
           "https://m.media-amazon.com/images/M/MV5BZjM2M2E3YzAtZDJjYy00MDhkLThiYmItOGZhNzQ3NTgyZmI0XkEyXkFqcGc@._V1_FMjpg_UY5000_.jpg",
+        mobile_poster_url: "https://source.unsplash.com/random/1920x1080",
         reviews: [
           {
             published: new Date("2024-11-04T00:00:00"),

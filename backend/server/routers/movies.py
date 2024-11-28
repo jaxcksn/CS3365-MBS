@@ -30,7 +30,7 @@ class CreateMovieReviewRequest(BaseModel):
 @router.get("/movies")
 async def movies(user_id: str = Depends(auth)):
     results = await DB.query(
-        "SELECT id, title, release_date as showings_start, poster_url FROM MovieShowing"
+        "SELECT id, title, release_date as showings_start, poster_url, mobile_poster_url FROM MovieShowing"
     )
     return results
 
@@ -130,6 +130,7 @@ async def fetchMovieInformation(id: str, user_id: str = Depends(auth)):
         "cast": movie["cast"],
         "release_date": movie["release_date"],
         "poster_url": movie["poster_url"],
+        "mobile_poster_url": movie["mobile_poster_url"],
         "did_review": has_user_review is not None,
         "reviews": reviews,
         "showing": {

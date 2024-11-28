@@ -31,6 +31,7 @@ class AddShowingRequest(BaseModel):
     cast: str  # Movie cast as a string
     release_date: str  # Release date of the movie
     poster_url: str  # URL for the poster
+    mobile_poster_url: str  # URL for the mobile poster
     showing_start: str  # Start date of availability
     showing_end: str  # End date of availability
     times: List[str]  # List of show times
@@ -96,11 +97,11 @@ async def add_showing(
             """
             INSERT INTO `MovieShowing`(
                 `id`, `title`, `description`, `runtime`, `cast`, `release_date`, `maturity_rating`,
-                `poster_url`, `start_date`, `end_date`, `times`, `seat_price`
+                `poster_url`, `mobile_poster_url` ,`start_date`, `end_date`, `times`, `seat_price`
             )
             VALUES (
                 :id, :title, :description, :runtime, :cast, :release_date, 'undefined',
-                :poster_url, :showing_start, :showing_end, :times, :price
+                :poster_url, :mobile_poster_url, :showing_start, :showing_end, :times, :price
             )
             """,
             {
@@ -111,6 +112,7 @@ async def add_showing(
                 "cast": body.cast,
                 "release_date": datetime.fromisoformat(body.release_date),
                 "poster_url": body.poster_url,
+                "mobile_poster_url": body.mobile_poster_url,
                 "showing_start": datetime.fromisoformat(body.showing_start),
                 "showing_end": datetime.fromisoformat(body.showing_end),
                 "times": json.dumps(body.times),
@@ -141,6 +143,7 @@ async def edit_showing(
                 `cast` = :cast,
                 `release_date` = :release_date,
                 `poster_url` = :poster_url,
+                `mobile_poster_url` = :mobile_poster_url,
                 `start_date` = :showing_start,
                 `end_date` = :showing_end,
                 `times` = :times,
@@ -155,6 +158,7 @@ async def edit_showing(
                 "cast": body.cast,
                 "release_date": datetime.fromisoformat(body.release_date),
                 "poster_url": body.poster_url,
+                "mobile_poster_url": body.mobile_poster_url,
                 "showing_start": datetime.fromisoformat(body.showing_start),
                 "showing_end": datetime.fromisoformat(body.showing_end),
                 "times": json.dumps(body.times),

@@ -14,6 +14,7 @@ export interface Movie {
   id: string;
   title: string;
   poster_url: string;
+  mobile_poster_url?: string;
   showings_start: string;
 }
 
@@ -39,6 +40,7 @@ export interface MovieInformation {
   cast: string;
   release_date: Date;
   poster_url: string;
+  mobile_poster_url?: string;
   reviews: MovieReview[];
   did_review: boolean;
   showing: Showing;
@@ -112,6 +114,7 @@ export interface AdminCreateShowingRequest {
   showing_end: Date;
   price: number;
   poster_url: string;
+  mobile_poster_url?: string;
   times: string[];
 }
 
@@ -126,5 +129,6 @@ export interface AdminUpdateShowingRequest {
   showing_end?: Date;
   price?: number;
   poster_url?: string;
+  mobile_poster_url?: string;
   times?: string[];
 }
