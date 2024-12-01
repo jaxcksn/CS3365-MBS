@@ -249,7 +249,7 @@ export default function Movie() {
           </Title>
           <Text pb="sm">{movieData?.description}</Text>
           <Text>
-            <strong>Runtime:</strong> {movieData?.runtime}
+            <strong>Runtime:</strong> {movieData?.runtime} mins
           </Text>
           <Text pb="md">
             <strong>Cast:</strong> {movieData?.cast}

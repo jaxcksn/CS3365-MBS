@@ -10,6 +10,7 @@ import {
   ActionIcon,
   Tooltip,
   Button,
+  TextInput,
   //  useMantineTheme,
 } from "@mantine/core";
 import setBodyColor from "../../utils/helpers";
@@ -23,6 +24,7 @@ import dayjs from "dayjs";
 // import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { modals } from "@mantine/modals";
+import { theaters } from "../../constants/Constants";
 
 type HealthStatus = "healthy" | "error" | "unknown";
 
@@ -92,6 +94,7 @@ const AdminDashboard = () => {
     database: "unknown",
   });
   const [showings, setShowings] = useState<AdminShowing[]>([]);
+  const [ticketId, setTicketId] = useState("");
 
   useEffect(() => {
     const fetchHealth = async () => {
@@ -181,6 +184,112 @@ const AdminDashboard = () => {
         <HealthCard title="Backend" status={checks.backend} />
         <HealthCard title="Database" status={checks.database} />
       </Flex>
+
+      <Title order={2} mt="md">
+        Admit Ticket
+      </Title>
+      <Group align="end" justify="center">
+        <TextInput
+          label="Ticket ID"
+          placeholder="Ticket ID"
+          flex={1}
+          value={ticketId}
+          onChange={(event) => setTicketId(event.currentTarget.value)}
+        />
+        <Button
+          variant="filled"
+          onClick={async () => {
+            try {
+              const result = await apiService.adminUseTicket(ticketId);
+              if (result) {
+                if (result.valid) {
+                  modals.open({
+                    title: "Ticket Admitted",
+                    children: (
+                      <Stack gap={0} align="center" justify="center">
+                        <i
+                          className="bi bi-check-circle-fill"
+                          style={{
+                            fontSize: "3rem",
+                            color: "var(--mantine-color-green-6)",
+                          }}
+                        />
+
+                        <Text fw="bold" size="lg">
+                          Ticket Admitted
+                        </Text>
+                        <Text>
+                          {result.seats} Seats
+                          <br />
+                          Theater: {theaters[result.theater ?? ""] ??
+                            "UNKNOWN"}{" "}
+                          - Movie: {result.movieTitle}
+                          <br />
+                          Date: {dayjs(result.date)
+                            .utc()
+                            .format("MM/DD/YYYY")}{" "}
+                          - Time: {result.time}
+                        </Text>
+                      </Stack>
+                    ),
+                  });
+                } else {
+                  modals.open({
+                    title: "Invalid Ticket",
+                    children: (
+                      <Stack gap={0} align="center" justify="center">
+                        <i
+                          className="bi bi-x-circle-fill"
+                          style={{
+                            fontSize: "3rem",
+                            color: "var(--mantine-color-red-6)",
+                          }}
+                        />
+
+                        <Text fw="bold" size="lg">
+                          Invalid Ticket
+                        </Text>
+                        <Text>
+                          This ticket has already been used and is no longer
+                          valid.
+                        </Text>
+                      </Stack>
+                    ),
+                  });
+                }
+              }
+            } catch (error: any) {
+              console.error(error);
+              modals.open({
+                title: "Invalid Ticket",
+                children: (
+                  <Stack gap={0} align="center" justify="center">
+                    <i
+                      className="bi bi-x-circle-fill"
+                      style={{
+                        fontSize: "3rem",
+                        color: "var(--mantine-color-red-6)",
+                      }}
+                    />
+
+                    <Text fw="bold" size="lg">
+                      Invalid Ticket
+                    </Text>
+                    <Text>
+                      {error.response.data.detail
+                        ? `Error ${error.response.status}: ${error.response.data.detail}`
+                        : "This ticket is invalid or could not be found."}
+                    </Text>
+                  </Stack>
+                ),
+              });
+            }
+          }}
+        >
+          Admit
+        </Button>
+      </Group>
+
       <Group align="center" justify="space-between" mt="md" mb="md">
         <Title order={2}>Manage Showings</Title>
         <Button variant="subtle" onClick={handleAdd}>

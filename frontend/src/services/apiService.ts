@@ -178,6 +178,26 @@ class ApiService {
     });
   }
 
+  public async adminUseTicket(id: string): Promise<{
+    valid: boolean;
+    theater?: string;
+    movieTitle?: string;
+    date?: Date;
+    time?: string;
+    seats?: number;
+  }> {
+    const response = await this.api.post<{
+      valid: boolean;
+      theater?: string;
+      movieTitle?: string;
+      date?: Date;
+      time?: string;
+      seats?: number;
+    }>("admin/ticket/use", { id });
+
+    return response.data;
+  }
+
   // !SECTION
 
   public async getPaymentIntent(

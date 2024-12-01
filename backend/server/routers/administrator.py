@@ -42,6 +42,10 @@ class EditShowingRequest(AddShowingRequest):
     id: str  # ID of the movie showing to edit
 
 
+class TicketUseRequest(BaseModel):
+    id: str  # ID of the ticket to use
+
+
 def convert_time_to_minutes(time_str: str) -> int:
     hours = 0
     minutes = 0
@@ -188,5 +192,36 @@ async def delete_showing(id: str, user_id: str = Depends(admin)):
         )
 
         return {"message": "Showing deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/admin/ticket/use")
+async def use_ticket(body: TicketUseRequest, user_id: str = Depends(admin)):
+    try:
+
+        result = await DB.queryOne(
+            "SELECT T.*, M.`title` FROM `Ticket` AS T JOIN `MovieShowing` AS M ON M.`id` = T.`showing` WHERE T.`id` = :id",
+            {"id": body.id},
+        )
+
+        if result is None:
+            raise HTTPException(status_code=404, detail="Ticket not found")
+
+        await DB.execute(
+            "UPDATE `Ticket` SET `used` = 1 WHERE `id` = :id",
+            {"id": body.id},
+        )
+
+        return {
+            "valid": result["used"] == False,
+            "movieTitle": result["title"],
+            "theater": result["theater"],
+            "date": result["date"],
+            "time": result["time"],
+            "seats": result["quantity"],
+        }
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
