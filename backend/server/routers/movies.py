@@ -136,7 +136,7 @@ async def fetchMovieInformation(id: str, user_id: str = Depends(auth)):
         "cast": movie["cast"],
         "release_date": movie["release_date"],
         "poster_url": movie["poster_url"],
-        "mobile_poster_url": movie["poster_url"],
+        "mobile_poster_url": movie["mobile_poster_url"],
         "did_review": has_user_review is not None,
         "reviews": reviews,
         "showing": {
