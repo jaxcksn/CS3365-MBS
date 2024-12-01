@@ -213,6 +213,16 @@ async def use_ticket(body: TicketUseRequest, user_id: str = Depends(admin)):
             {"id": body.id},
         )
 
+        if result["date"] < datetime.now().date():
+            return {
+                "valid": False,
+                "movieTitle": result["title"],
+                "theater": result["theater"],
+                "date": result["date"],
+                "time": result["time"],
+                "seats": result["quantity"],
+            }
+
         return {
             "valid": result["used"] == False,
             "movieTitle": result["title"],
