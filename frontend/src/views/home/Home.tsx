@@ -119,7 +119,7 @@ function Home() {
             pb={0}
           />
         )}
-        <Title order={3} pl="md" pt="sm" pb="sm">
+        <Title order={3} pl="md" pt="sm" pb="sm" c="var(--headingColor)">
           Now Playing
         </Title>
         <MovieCarousel
@@ -127,7 +127,7 @@ function Home() {
           loading={currentLoading}
           onMovieClick={(id) => handleMovieClick(id)}
         />
-        <Title order={3} pl="md" pt="sm" pb="sm">
+        <Title order={3} pl="md" pt="sm" pb="sm" c="var(--headingColor)">
           Upcoming
         </Title>
         <MovieCarousel

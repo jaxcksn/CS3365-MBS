@@ -89,7 +89,12 @@ export default function Movie() {
             <Title order={4}>
               {dayjs(review.published).format("MMM D, YYYY")}
             </Title>
-            <Rating value={review.rating} readOnly size="sm" color="myColor" />
+            <Rating
+              value={review.rating}
+              readOnly
+              size="sm"
+              color={theme.colors["myColor"][5]}
+            />
           </Group>
           <Text>{review.text}</Text>
         </Paper>
@@ -129,20 +134,25 @@ export default function Movie() {
         color: "green",
       });
 
-      setReview("");
-      setRating(0);
+      const newReviews = [
+        ...movieData.reviews,
+        {
+          published: new Date(),
+          rating: rating,
+          text: review,
+        },
+      ];
+
       setMovieData({
         ...movieData,
         did_review: true,
-        reviews: [
-          ...movieData.reviews,
-          {
-            published: new Date(),
-            rating: rating,
-            text: review,
-          },
-        ],
+        reviews: newReviews,
+        rating:
+          newReviews.reduce((acc, review) => acc + review.rating, 0) /
+          newReviews.length,
       });
+      setReview("");
+      setRating(0);
     } catch {
       Notifications.show({
         title: "Error",
@@ -230,7 +240,7 @@ export default function Movie() {
             value={movieData?.rating ?? 0}
             fractions={2}
             onChange={setRating}
-            color="myColor"
+            color={theme.colors["myColor"][5]}
             readOnly
             size="1.5rem"
           />
@@ -294,7 +304,7 @@ export default function Movie() {
             <Rating
               value={rating}
               onChange={setRating}
-              color="myColor"
+              color={theme.colors["myColor"][5]}
               readOnly={movieData?.did_review}
             />
             <Tooltip

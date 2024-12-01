@@ -8,13 +8,15 @@ import {
   NavLink,
   Title,
   Checkbox,
+  SegmentedControl,
   Stack,
+  useMantineColorScheme,
+  useComputedColorScheme,
 } from "@mantine/core";
 import Logo from "../../assets/RaiderWatchLogo.svg?react";
 import MiniLogo from "../../assets/MiniLogo.svg?react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useAuth, useMBS } from "../../hooks/ProviderHooks";
-
 import "./AppHeader.css";
 import { useNavigate } from "react-router-dom";
 
@@ -54,6 +56,8 @@ export const AppHeader = (props: AppHeaderProps) => {
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
+  const { toggleColorScheme, setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme("light");
 
   return (
     <AppShell.Header pos="relative" className="header">
@@ -91,6 +95,23 @@ export const AppHeader = (props: AppHeaderProps) => {
             >
               My Tickets
             </Button>
+          )}
+          {!isMobile && (
+            <ActionIcon
+              variant="subtle"
+              color="white"
+              size="lg"
+              ml="md"
+              onClick={() => {
+                toggleColorScheme();
+              }}
+            >
+              {computedColorScheme === "dark" ? (
+                <i className="bi bi-sun" style={{ fontSize: "1.2rem" }} />
+              ) : (
+                <i className="bi bi-moon" style={{ fontSize: "1.2rem" }} />
+              )}
+            </ActionIcon>
           )}
           <ActionIcon
             variant="subtle"
@@ -151,6 +172,24 @@ export const AppHeader = (props: AppHeaderProps) => {
             mbs.closeOptions();
           }}
         />
+        {isMobile && (
+          <>
+            <Title order={4} mb="sm">
+              UI Settings
+            </Title>
+            <SegmentedControl
+              value={computedColorScheme}
+              onChange={(value) => {
+                setColorScheme(value as "light" | "dark");
+              }}
+              fullWidth
+              data={[
+                { label: "Dark", value: "dark" },
+                { label: "Light", value: "light" },
+              ]}
+            />
+          </>
+        )}
         <>
           <Title order={4} mt="sm" mb="sm">
             Developer Settings

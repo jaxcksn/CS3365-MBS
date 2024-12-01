@@ -26,6 +26,27 @@ import "./MyTickets.css";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
+const EmptyList = ({
+  topText,
+  bottomText,
+  iconClass,
+}: {
+  topText: string;
+  bottomText: string;
+  iconClass: string;
+}) => {
+  return (
+    <Stack align="center" gap={0} mt="2rem" mb="2rem" opacity="70%">
+      <i
+        className={"bi " + iconClass}
+        style={{ fontSize: "3rem", color: "var(--headingColor)" }}
+      />
+      <Title order={2}>{topText}</Title>
+      <Text>{bottomText}</Text>
+    </Stack>
+  );
+};
+
 const MyTickets = () => {
   const mbs = useMBS();
 
@@ -105,7 +126,9 @@ const MyTickets = () => {
         </Text>
       </Modal>
       <Container>
-        <h1>My Tickets</h1>
+        <Title order={1} c="var(--headingColor)" mt="md" mb="sm">
+          My Tickets
+        </Title>
         <Group justify="space-between" align="center">
           <Title order={2} mb="md">
             Upcoming
@@ -116,6 +139,13 @@ const MyTickets = () => {
         </Group>
 
         <Stack>
+          {usedTickets.length === 0 && (
+            <EmptyList
+              topText="No Active Tickets Found"
+              bottomText="We couldn't find any active tickets"
+              iconClass="bi-ticket-fill"
+            />
+          )}
           {tickets.map((ticket, index) => (
             <Paper
               key={ticket.id}
@@ -172,6 +202,13 @@ const MyTickets = () => {
           Used/Expired Tickets
         </Title>
         <Stack>
+          {usedTickets.length === 0 && (
+            <EmptyList
+              topText="No Expired Tickets"
+              bottomText="You don't have any inactive tickets"
+              iconClass="bi-ticket"
+            />
+          )}
           {usedTickets.map((ticket) => (
             <Paper key={ticket.id} p="sm" withBorder radius="md" shadow="xs">
               <Flex align="flex-start" gap="lg">

@@ -18,6 +18,7 @@ import {
   TextInput,
   Title,
   Text,
+  useComputedColorScheme,
 } from "@mantine/core";
 import setBodyColor from "../../utils/helpers";
 import { DatePickerInput } from "@mantine/dates";
@@ -37,6 +38,7 @@ const parseRuntimeString = (runtime: string) => {
 };
 
 const SelectShowtimes = ({ times }: { times: Map<string, boolean> }) => {
+  const theme = useComputedColorScheme();
   const TimeSelects = () => {
     return Array.from(times.keys()).map((time) => (
       <Box
@@ -69,9 +71,7 @@ const SelectShowtimes = ({ times }: { times: Map<string, boolean> }) => {
       p="xs"
       shadow="none"
       withBorder
-      style={{
-        borderColor: "#ced4da",
-      }}
+      bg={theme === "dark" ? "#2e2e2e" : "white"}
     >
       <Flex gap="sm" wrap="wrap" justify="flex-start">
         <TimeSelects />
@@ -81,7 +81,7 @@ const SelectShowtimes = ({ times }: { times: Map<string, boolean> }) => {
 };
 
 const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
-  setBodyColor({ color: "var(--mantine-body-color)" });
+  setBodyColor({ color: "var(--mantine-color-body)" });
   const navigate = useNavigate();
 
   const mbs = useMBS();
@@ -227,8 +227,8 @@ const AdminAddEdit = ({ mode }: AdminAddEditProps) => {
       <Flex columnGap="md">
         <Paper radius="md" shadow="xs" withBorder flex={3} p="sm">
           <form onSubmit={onSubmit}>
-            <Title order={1}>
-              {mode === "edit" && movieInfo ? "Edit Existing" : "Add New"} Movie
+            <Title order={1} c="var(--headingColor)">
+              {mode === "edit" && movieInfo ? "Edit" : "Add"} Movie
             </Title>
             <Text fs="italic" mb="sm">
               All fields are required for this form.

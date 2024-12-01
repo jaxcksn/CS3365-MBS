@@ -162,7 +162,9 @@ const AdminDashboard = () => {
 
   return (
     <Container>
-      <Title order={1}>Admin Dashboard</Title>
+      <Title order={1} c="var(--headingColor)" mt="md" mb="sm">
+        Admin Dashboard
+      </Title>
       <Title order={2}>System Status</Title>
       <Flex
         justify={{

@@ -4,6 +4,11 @@
 :root {
   --bodyColor: var(--mantine-color-body);
   --input-fz: 1rem;
+  --headingColor: var(--mantine-color-myColor-6);
+}
+
+:root[data-mantine-color-scheme="dark"] {
+  --headingColor: var(--mantine-color-myColor-2);
 }
 
 html,

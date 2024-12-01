@@ -72,16 +72,16 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const myColor: MantineColorsTuple = [
-  "#ffeaea",
-  "#fed4d4",
-  "#f4a8a8",
-  "#eb7979",
-  "#e45151",
-  "#e03737",
-  "#df292a",
-  "#c61b1d",
-  "#b11318",
-  "#9c0512",
+  "#f1f1ff",
+  "#e0dff2",
+  "#bfbdde",
+  "#9b98ca",
+  "#7d79b9",
+  "#6a66af",
+  "#605cac",
+  "#504c97",
+  "#464388",
+  "#3b3979",
 ];
 
 const theme = createTheme({
@@ -230,7 +230,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <AuthProvider>
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} defaultColorScheme="light">
       <ModalsProvider modals={{ error: ErrorModal }}>
         <DatesProvider settings={{ locale: "en-us" }}>
           <MBSProvider>
