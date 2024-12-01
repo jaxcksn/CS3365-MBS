@@ -120,6 +120,10 @@ const MyTickets = () => {
         <QRCodeSVG
           value={qrCodeIndex < tickets.length ? tickets[qrCodeIndex].id : ""}
           size={height * 0.4}
+          style={{
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
         />
         <Text ta="center" mt="md">
           {qrCodeIndex < tickets.length ? tickets[qrCodeIndex].id : ""}
