@@ -139,7 +139,7 @@ const MyTickets = () => {
         </Group>
 
         <Stack>
-          {usedTickets.length === 0 && (
+          {tickets.length === 0 && (
             <EmptyList
               topText="No Active Tickets Found"
               bottomText="We couldn't find any active tickets"
