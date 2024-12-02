@@ -20,13 +20,14 @@ class RegisterInfo(BaseModel):
     email: str
     password: str
     phone_number: str
+    lastname: str
+    firstname: str
+    address: str
 
 
 class LoginInfo(BaseModel):
     email: str
     password: str
-
-
 
 
 # ---------------------------------------------------------------------------- #
@@ -41,13 +42,16 @@ async def register(
 ):
     hash = bcrypt.hashpw(info.password.encode("utf-8"), bcrypt.gensalt())
     await DB.execute(
-        """INSERT INTO `User` (`id`, `email`, `password`, `phone`, `role`) 
-        VALUES (:id, :email, :password, :phone_number, 'user')""",
+        """INSERT INTO `User` (`id`, `email`, `password`, `phone`, `role`, `firstName`, `lastName`, `address`) 
+        VALUES (:id, :email, :password, :phone_number, 'user', :first_name, :last_name, :address)""",
         {
             "id": newId(),
             "email": info.email,
             "password": hash,
             "phone_number": info.phone_number,
+            "first_name": info.firstname,
+            "last_name": info.lastname,
+            "address": info.address,
         },
     )
     response.status_code = status.HTTP_201_CREATED
@@ -60,7 +64,7 @@ async def login(
     response: Response,
 ):
     result = await DB.queryOne(
-        "SELECT id, password, role FROM `User` WHERE email=:username",
+        "SELECT id, password, role, firstName, lastName, address, phone FROM `User` WHERE email=:username",
         {"username": body.email},
     )
     if not result:
@@ -81,6 +85,10 @@ async def login(
                 "access_token": access[0],
                 "expires": datetime.datetime.fromtimestamp(access[1]),
                 "role": result["role"],
+                "firstname": result["firstName"],
+                "lastname": result["lastName"],
+                "address": result["address"],
+                "phone_number": result["phone"],
             }
         else:
             raise HTTPException(status_code=401, detail="Invalid password")
@@ -104,7 +112,8 @@ async def refresh(
         access = generate_access_token(user_id)
         refresh = generate_refresh_token(user_id)
         roleResult = await DB.queryOne(
-            "SELECT role FROM `User` WHERE id=:id", {"id": user_id}
+            "SELECT role, firstName, lastName, phone, address FROM `User` WHERE id=:id",
+            {"id": user_id},
         )
 
         response.set_cookie(
@@ -114,6 +123,10 @@ async def refresh(
             "access_token": access[0],
             "expires": datetime.datetime.fromtimestamp(access[1]),
             "role": roleResult["role"],
+            "firstname": roleResult["firstName"],
+            "lastname": roleResult["lastName"],
+            "address": roleResult["address"],
+            "phone_number": roleResult["phone"],
         }
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=400, detail="Refresh token has expired")
@@ -128,7 +141,8 @@ def logout(response: Response):
     response.delete_cookie(key="refresh_token")
     return {"message": "User logged out successfully"}
 
-@router.get("/user/bookings",status_code=200)
+
+@router.get("/user/bookings", status_code=200)
 async def get_user_bookings(user: str = Depends(auth)):
     """
     Get bookings for the logged-in user in the required format.
@@ -173,27 +187,28 @@ async def get_user_bookings(user: str = Depends(auth)):
         return []
     return [
         {
-            "id"        : booking["ticket_id"],
-            "date"      : booking["date"],
-            "time"      : booking["time"],
-            "seats"     : booking["quantity"],
-            "cost"      : booking["cost"],
-            "used"      : booking["used"],
-            "movie"     : { "movie_id"          : booking["movie_id"],
-                            "title"             : booking["movie_title"],
-                            "description"       : booking["description"],
-                            "runtime"           : booking["runtime"],
-                            "maturity_rating"   : booking["maturity_rating"],
-                            "cast"              : booking["cast"],
-                            "date"              : booking["date"],
-                            "release_date"      : booking["release_date"],
-                            "poster_url"        : booking["poster_url"],
-                            "start_date"        : booking["start_date"],
-                            "end_date"          : booking["end_date"],
-                            "times"             : booking["times"],
-                            "cost"              : booking["cost"]
-                            },
-            "theater"   : booking["theater"],
+            "id": booking["ticket_id"],
+            "date": booking["date"],
+            "time": booking["time"],
+            "seats": booking["quantity"],
+            "cost": booking["cost"],
+            "used": booking["used"],
+            "movie": {
+                "movie_id": booking["movie_id"],
+                "title": booking["movie_title"],
+                "description": booking["description"],
+                "runtime": booking["runtime"],
+                "maturity_rating": booking["maturity_rating"],
+                "cast": booking["cast"],
+                "date": booking["date"],
+                "release_date": booking["release_date"],
+                "poster_url": booking["poster_url"],
+                "start_date": booking["start_date"],
+                "end_date": booking["end_date"],
+                "times": booking["times"],
+                "cost": booking["cost"],
+            },
+            "theater": booking["theater"],
         }
-                for booking in bookings
+        for booking in bookings
     ]

@@ -82,6 +82,10 @@ class ApiService {
       access_token: response.data.access_token,
       expires: new Date(response.data.expires),
       role: response.data.role,
+      firstname: response.data.firstname,
+      lastname: response.data.lastname,
+      address: response.data.address,
+      phone_number: response.data.phone_number,
     };
   }
 

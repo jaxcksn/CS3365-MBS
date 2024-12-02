@@ -1,3 +1,4 @@
+/* eslint-disable max-params */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import apiService from "../services/apiService";
 
@@ -7,6 +8,13 @@ import { useLocalStorage } from "@mantine/hooks";
 
 interface AuthProviderProps {
   children: ReactNode;
+}
+
+interface Profile {
+  firstname: string;
+  lastname: string;
+  address: string;
+  phone_number: string;
 }
 
 const noRefreshPaths = new Set(["/login", "/signup"]);
@@ -24,13 +32,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     key: "mbs_role",
     defaultValue: "",
   });
+  const [profile, setProfile] = useState<Profile>({
+    firstname: "",
+    lastname: "",
+    address: "",
+    phone_number: "",
+  });
+
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
-  const saveAuthData = (token: string, expiration: Date, userRole: string) => {
+  const saveAuthData = (
+    token: string,
+    expiration: Date,
+    userRole: string,
+    profile: Profile
+  ) => {
     setAccessToken(token);
     setExpires(new Date(expiration));
     setRole(userRole);
+    setProfile({
+      firstname: profile.firstname,
+      lastname: profile.lastname,
+      address: profile.address,
+      phone_number: profile.phone_number,
+    });
     apiService.setAccessToken(token);
     setIsLoggedIn(true);
   };
@@ -65,7 +91,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (!noRefreshPaths.has(window.location.pathname)) {
           const result = await apiService.refresh();
           if (result.access_token) {
-            saveAuthData(result.access_token, result.expires, result.role);
+            saveAuthData(result.access_token, result.expires, result.role, {
+              firstname: result.firstname,
+              lastname: result.lastname,
+              address: result.address,
+              phone_number: result.phone_number,
+            });
           } else {
             clearAuthData();
           }
@@ -87,7 +118,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           const result = await apiService.refresh();
           if (result.access_token) {
-            saveAuthData(result.access_token, result.expires, result.role);
+            saveAuthData(result.access_token, result.expires, result.role, {
+              firstname: result.firstname,
+              lastname: result.lastname,
+              address: result.address,
+              phone_number: result.phone_number,
+            });
           } else {
             clearAuthData();
           }
@@ -103,7 +139,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = useCallback(async (email: string, password: string) => {
     const result = await apiService.login(email, password);
     if (result.access_token) {
-      saveAuthData(result.access_token, result.expires, result.role);
+      saveAuthData(result.access_token, result.expires, result.role, {
+        firstname: result.firstname,
+        lastname: result.lastname,
+        address: result.address,
+        phone_number: result.phone_number,
+      });
     }
   }, []);
 
@@ -122,8 +163,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       login,
       logout,
       role,
+      profile,
     }),
-    [accessToken, isLoggedIn, loading, login, logout, role]
+    [accessToken, isLoggedIn, loading, login, logout, role, profile]
   );
 
   return (

@@ -2,12 +2,19 @@ export interface LoginResponse {
   access_token: string;
   expires: Date;
   role: string;
+  firstname: string;
+  lastname: string;
+  address: string;
+  phone_number: string;
 }
 
 export interface RegisterRequest {
   email: string;
   password: string;
   phone_number: string;
+  firstname: string;
+  lastname: string;
+  address: string;
 }
 
 export interface Movie {

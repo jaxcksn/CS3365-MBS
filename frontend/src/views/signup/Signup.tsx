@@ -12,7 +12,6 @@ import {
   Checkbox,
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/ProviderHooks";
 import Logo from "../../assets/RaiderWatchLogo.svg?react";
 import setBodyColor from "../../utils/helpers";
 import PhoneNumberInput from "../../components/inputs/PhoneNumberInput";
@@ -30,6 +29,8 @@ import apiService from "../../services/apiService";
 
 export default function Signup() {
   const schema = z.object({
+    firstname: z.string().min(1),
+    lastname: z.string().min(1),
     email: z.string().email(),
     password:
       APP_MODE === "PROD"
@@ -43,6 +44,7 @@ export default function Signup() {
     phone_number: z
       .string()
       .refine(validator.isMobilePhone, "Invalid Phone Number"),
+    address: z.string().min(1),
   });
 
   const form = useForm({
@@ -51,12 +53,14 @@ export default function Signup() {
       email: "",
       password: "",
       phone_number: "",
+      firstname: "",
+      lastname: "",
+      address: "",
     },
     validateInputOnBlur: true,
     validate: zodResolver(schema),
   });
 
-  const auth = useAuth();
   const navigate = useNavigate();
 
   const onSubmit = async (data: RegisterRequest) => {
@@ -65,11 +69,13 @@ export default function Signup() {
         email: data.email,
         password: data.password,
         phone_number: data.phone_number,
+        firstname: data.firstname,
+        lastname: data.lastname,
+        address: data.address,
       });
 
       if (registerStatus === 201 || registerStatus === 200) {
-        await auth.login(data.email, data.password);
-        navigate("/");
+        navigate("/login?registered=true");
       }
     } catch (error) {
       console.error(error);
@@ -96,11 +102,7 @@ export default function Signup() {
       <Paper shadow="md" p="xl" className="login-card" radius="lg">
         <Group justify="center" style={{ maxHeight: "100%" }}>
           <div style={{ width: "50%" }}>
-            <Logo
-              fill="var(--mantine-color-myColor-filled)"
-              width="100%"
-              height="auto"
-            />
+            <Logo fill="var(--mantine-color-myColor-filled)" width="100%" />
           </div>
         </Group>
         <Title order={1} pt={10}>
@@ -113,6 +115,32 @@ export default function Signup() {
           })}
         >
           <Flex gap="xs" direction="column">
+            <Flex
+              direction={{
+                base: "column",
+                md: "row",
+              }}
+              gap="xs"
+            >
+              <TextInput
+                withAsterisk
+                label="First Name"
+                placeholder="First Name"
+                key={form.key("firstname")}
+                {...form.getInputProps("firstname")}
+                size={isMobile ? "md" : "sm"}
+                flex={1}
+              />
+              <TextInput
+                withAsterisk
+                label="Last Name"
+                placeholder="Last Name"
+                key={form.key("lastname")}
+                {...form.getInputProps("lastname")}
+                size={isMobile ? "md" : "sm"}
+                flex={1}
+              />
+            </Flex>
             <TextInput
               withAsterisk
               label="Email"
@@ -136,6 +164,15 @@ export default function Signup() {
               {...form.getInputProps("phone_number")}
               size={isMobile ? "md" : "sm"}
             />
+            <TextInput
+              withAsterisk
+              label="Address"
+              placeholder="Address"
+              key={form.key("address")}
+              {...form.getInputProps("address")}
+              size={isMobile ? "md" : "sm"}
+              flex={1}
+            />
             <Checkbox
               label="I agree to follow the Terms of Service"
               checked={didAgree}
@@ -150,7 +187,7 @@ export default function Signup() {
               mt="sm"
               disabled={!didAgree}
             >
-              Login
+              Create Account
             </Button>
 
             <Group justify="flex-end">

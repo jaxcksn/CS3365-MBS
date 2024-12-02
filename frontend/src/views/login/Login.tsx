@@ -1,5 +1,5 @@
 import { useAuth } from "../../hooks/ProviderHooks";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Button,
   Group,
@@ -18,6 +18,8 @@ import { useForm } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 
 import "./Login.css";
+import { useEffect } from "react";
+import { notifications } from "@mantine/notifications";
 
 interface LoginFormInputs {
   username: string;
@@ -35,6 +37,7 @@ function Login() {
 
   const auth = useAuth();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
@@ -44,6 +47,17 @@ function Login() {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    if (params.has("registered")) {
+      notifications.show({
+        title: "Registration Successful",
+        message: "You may now login.",
+        color: "green",
+      });
+      setParams();
+    }
+  }, [params]);
 
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
@@ -62,11 +76,7 @@ function Login() {
       <Paper shadow="md" p="xl" className="login-card" radius="lg">
         <Group justify="center">
           <div style={{ width: "50%" }}>
-            <Logo
-              fill="var(--mantine-color-myColor-filled)"
-              width="100%"
-              height="auto"
-            />
+            <Logo fill="var(--mantine-color-myColor-filled)" width="100%" />
           </div>
         </Group>
         <Title order={1} pt={10}>

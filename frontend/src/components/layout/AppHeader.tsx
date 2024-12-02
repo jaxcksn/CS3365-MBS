@@ -12,6 +12,7 @@ import {
   Stack,
   useMantineColorScheme,
   useComputedColorScheme,
+  Text,
 } from "@mantine/core";
 import Logo from "../../assets/RaiderWatchLogo.svg?react";
 import MiniLogo from "../../assets/MiniLogo.svg?react";
@@ -19,6 +20,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useAuth, useMBS } from "../../hooks/ProviderHooks";
 import "./AppHeader.css";
 import { useNavigate } from "react-router-dom";
+import { APP_MODE } from "../../constants/Constants";
 
 export interface AppHeaderProps {
   showSearch: boolean;
@@ -49,6 +51,30 @@ const DevSettings = () => {
   );
 };
 
+const Profile = () => {
+  const auth = useAuth();
+
+  return (
+    <Stack gap={0} mt="sm" mb="sm">
+      <Title order={4} mb="xs">
+        User Profile
+      </Title>
+      <Text>
+        <strong>Name: </strong>
+        {auth.profile.firstname} {auth.profile.lastname}
+      </Text>
+      <Text>
+        <strong>Address: </strong>
+        {auth.profile.address}
+      </Text>
+      <Text>
+        <strong>Phone: </strong>
+        {auth.profile.phone_number}
+      </Text>
+    </Stack>
+  );
+};
+
 export const AppHeader = (props: AppHeaderProps) => {
   const auth = useAuth();
   const mbs = useMBS();
@@ -58,6 +84,17 @@ export const AppHeader = (props: AppHeaderProps) => {
   const isMd = useMediaQuery(`(max-width: ${theme.breakpoints.md})`);
   const { toggleColorScheme, setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light");
+
+  const greeting: () => string = () => {
+    const hours = new Date().getHours();
+    if (hours < 12) {
+      return "Good Morning";
+    } else if (hours < 18) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  };
 
   return (
     <AppShell.Header pos="relative" className="header">
@@ -132,6 +169,9 @@ export const AppHeader = (props: AppHeaderProps) => {
         title="Options Menu"
         position="right"
       >
+        <Title order={2} mt="sm" mb="sm" c="var(--headingColor)">
+          {greeting()}, {auth.profile.firstname}
+        </Title>
         <Title order={4} mb="sm">
           Navigate
         </Title>
@@ -172,6 +212,7 @@ export const AppHeader = (props: AppHeaderProps) => {
             mbs.closeOptions();
           }}
         />
+        <Profile />
         {isMobile && (
           <>
             <Title order={4} mb="sm">
@@ -190,14 +231,16 @@ export const AppHeader = (props: AppHeaderProps) => {
             />
           </>
         )}
-        <>
-          <Title order={4} mt="sm" mb="sm">
-            Developer Settings
-          </Title>
-          <Stack>
-            <DevSettings />
-          </Stack>
-        </>
+        {APP_MODE === "DEV" && (
+          <>
+            <Title order={4} mt="sm" mb="sm">
+              Developer Settings
+            </Title>
+            <Stack>
+              <DevSettings />
+            </Stack>
+          </>
+        )}
       </Drawer>
     </AppShell.Header>
   );

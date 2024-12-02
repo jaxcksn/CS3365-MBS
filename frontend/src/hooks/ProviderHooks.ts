@@ -40,6 +40,12 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   role: string;
+  profile: {
+    firstname: string;
+    lastname: string;
+    address: string;
+    phone_number: string;
+  };
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(

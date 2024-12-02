@@ -9,6 +9,7 @@ import {
   Stack,
   Button,
   useMantineTheme,
+  Divider,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
@@ -111,7 +112,19 @@ const PaymentForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Title order={3}>Payment info</Title>
+      <Title order={3}>Paypal</Title>
+      <Button
+        mt="sm"
+        fullWidth
+        leftSection={<i className="bi bi-paypal" />}
+        onClick={() => {
+          window.open("https://sandbox.paypal.com/", "_blank");
+        }}
+      >
+        Checkout with Paypal
+      </Button>
+      <Divider mt="md" mb="md" />
+      <Title order={3}>Credit/Debit Card</Title>
       <PaymentElement />
       <div style={{ display: "flex" }}>
         <Button fullWidth mt="sm" type="submit">
