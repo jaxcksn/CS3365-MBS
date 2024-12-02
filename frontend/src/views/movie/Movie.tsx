@@ -26,6 +26,9 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useMBS } from "../../hooks/ProviderHooks";
 import mockService from "../../services/mockService";
 import setBodyColor from "../../utils/helpers";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(timezone);
 
 export default function Movie() {
   const mbs = useMBS();
@@ -88,7 +91,10 @@ export default function Movie() {
         <Paper key={i} radius="md" p="md" withBorder>
           <Group justify="space-between">
             <Title order={4}>
-              {dayjs(review.published).format("MMM D, YYYY")}
+              {dayjs
+                .utc(review.published)
+                .tz(dayjs.tz.guess())
+                .format("MMM D, YYYY")}
             </Title>
             <Rating
               value={review.rating}
@@ -341,9 +347,22 @@ export default function Movie() {
               <Title order={3} mt="md" mb="sm">
                 User Reviews
               </Title>
-              <Stack gap={10} mb="md">
-                {reviewList}
-              </Stack>
+              {Array.isArray(reviewList) && reviewList.length > 0 ? (
+                <Stack gap={10} mb="md">
+                  {reviewList}
+                </Stack>
+              ) : (
+                <Stack align="center" gap={0} mt="2rem" mb="2rem" opacity="70%">
+                  <i
+                    className="bi bi-pen"
+                    style={{ fontSize: "3rem", color: "var(--headingColor)" }}
+                  />
+                  <Title order={2}>No Reviews</Title>
+                  <Text>
+                    No one has left a review yet. You could be the first.
+                  </Text>
+                </Stack>
+              )}
             </>
           )}
       </Flex>
