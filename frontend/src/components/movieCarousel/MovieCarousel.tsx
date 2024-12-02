@@ -1,5 +1,12 @@
 import MovieCard, { MovieCardProps } from "./MovieCard";
-import { Center, Skeleton, Text, useMantineTheme } from "@mantine/core";
+import {
+  Center,
+  Skeleton,
+  Stack,
+  Text,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 
@@ -98,7 +105,14 @@ export default function MovieCarousel({
 
   return data.length === 0 && !loading ? (
     <Center h={isMobile ? "35svh" : "35vh"}>
-      <Text>No results found...</Text>
+      <Stack align="center" gap={0} mt="2rem" mb="2rem" opacity="70%">
+        <i
+          className="bi bi-x"
+          style={{ fontSize: "3rem", color: "var(--headingColor)" }}
+        />
+        <Title order={2}>No Results</Title>
+        <Text>We couldn&apos;t find anything to show you.</Text>
+      </Stack>
     </Center>
   ) : (
     <div style={{ position: "relative" }}>

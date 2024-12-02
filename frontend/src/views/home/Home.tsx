@@ -133,6 +133,7 @@ function Home() {
         <MovieCarousel
           data={filteredUpcomingMovies}
           loading={upcomingLoading}
+          onMovieClick={(id) => handleMovieClick(id)}
         />
       </Container>
     </AppShell>

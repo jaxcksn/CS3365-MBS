@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import {
   Container,
   Flex,
@@ -251,86 +252,100 @@ export default function Movie() {
           <Text>
             <strong>Runtime:</strong> {movieData?.runtime} mins
           </Text>
-          <Text pb="md">
+          <Text>
             <strong>Cast:</strong> {movieData?.cast}
           </Text>
-          <div>
-            <Button
-              fullWidth={isMobile}
-              size="md"
-              onClick={() => {
-                if (movieData) {
-                  mbs.setCachedShowing(movieData);
-                  navigate("./book");
-                }
-              }}
-            >
-              Buy Tickets
-            </Button>
-          </div>
+          {movieData?.showing.start_date &&
+          new Date(movieData.showing.start_date) > new Date() ? (
+            <Text>
+              <strong>Release Date:</strong>{" "}
+              {dayjs(movieData?.release_date).utc().format("MM/DD/YYYY")}
+            </Text>
+          ) : (
+            <div>
+              <Button
+                fullWidth={isMobile}
+                size="md"
+                mt="md"
+                onClick={() => {
+                  if (movieData) {
+                    mbs.setCachedShowing(movieData);
+                    navigate("./book");
+                  }
+                }}
+              >
+                Buy Tickets
+              </Button>
+            </div>
+          )}
         </Stack>
       </Flex>
       <Flex direction="column">
-        <Group justify="space-between" align="center" mt="md">
-          <Title order={3}>Write A Review</Title>
-          <Button
-            variant="transparent"
-            onClick={() => setShowReview(!showReview)}
-            size="sm"
-            p={0}
-          >
-            {showReview ? "Hide" : "Show"}
-          </Button>
-        </Group>
-        <Collapse in={showReview}>
-          <Textarea
-            placeholder={
-              movieData?.did_review
-                ? "You have already submitted a review for this movie."
-                : "Write a movie review here"
-            }
-            autosize
-            minRows={2}
-            maxRows={4}
-            maxLength={250}
-            value={review}
-            onChange={handleInputChange}
-            onPaste={handlePaste}
-            descriptionProps={{ align: "right" }}
-            description={`${review.length}/250`}
-            disabled={movieData?.did_review}
-          />
-          <Group mt="xs" justify="flex-end">
-            <Rating
-              value={rating}
-              onChange={setRating}
-              color={theme.colors["myColor"][5]}
-              readOnly={movieData?.did_review}
-            />
-            <Tooltip
-              label="You must set a rating"
-              disabled={
-                review.trim().length === 0 ||
-                rating !== 0 ||
-                movieData?.did_review
-              }
-            >
-              <Button
-                disabled={review.trim().length === 0 || rating === 0}
-                size="md"
-                onClick={handleReviewSubmit}
-              >
-                Submit Review
-              </Button>
-            </Tooltip>
-          </Group>
-        </Collapse>
-        <Title order={3} mt="md" mb="sm">
-          User Reviews
-        </Title>
-        <Stack gap={10} mb="md">
-          {reviewList}
-        </Stack>
+        {movieData?.showing.start_date &&
+          new Date(movieData.showing.start_date) <= new Date() && (
+            <>
+              <Group justify="space-between" align="center" mt="md">
+                <Title order={3}>Write A Review</Title>
+                <Button
+                  variant="transparent"
+                  onClick={() => setShowReview(!showReview)}
+                  size="sm"
+                  p={0}
+                >
+                  {showReview ? "Hide" : "Show"}
+                </Button>
+              </Group>
+              <Collapse in={showReview}>
+                <Textarea
+                  placeholder={
+                    movieData?.did_review
+                      ? "You have already submitted a review for this movie."
+                      : "Write a movie review here"
+                  }
+                  autosize
+                  minRows={2}
+                  maxRows={4}
+                  maxLength={250}
+                  value={review}
+                  onChange={handleInputChange}
+                  onPaste={handlePaste}
+                  descriptionProps={{ align: "right" }}
+                  description={`${review.length}/250`}
+                  disabled={movieData?.did_review}
+                />
+                <Group mt="xs" justify="flex-end">
+                  <Rating
+                    value={rating}
+                    onChange={setRating}
+                    color={theme.colors["myColor"][5]}
+                    readOnly={movieData?.did_review}
+                  />
+                  <Tooltip
+                    label="You must set a rating"
+                    disabled={
+                      review.trim().length === 0 ||
+                      rating !== 0 ||
+                      movieData?.did_review
+                    }
+                  >
+                    <Button
+                      disabled={review.trim().length === 0 || rating === 0}
+                      size="md"
+                      onClick={handleReviewSubmit}
+                    >
+                      Submit Review
+                    </Button>
+                  </Tooltip>
+                </Group>
+              </Collapse>
+              <Title order={3} mt="md" mb="sm">
+                User Reviews
+              </Title>
+              <Stack gap={10} mb="md">
+                {reviewList}
+              </Stack>
+            </>
+          )}
       </Flex>
     </Container>
   );
